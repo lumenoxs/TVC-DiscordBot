@@ -7,7 +7,8 @@ import os
 import requests
 import datetime
 from dotenv import load_dotenv
-from tickets.tickets import TicketView, CloseTicket
+from tickets.tickets import TicketView, CloseTicket, load_tickets_data
+from itertools import cycle
     
 # --------------------------------------------------------------------------
 # Discord shenanigans
@@ -689,6 +690,20 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
     await channel.send(content=content, view=view)
     await interaction.response.send_message(f"Your request to link Minecraft account '{ign}' has been sent.")
 
+# --------------------------------------------------------------------------
+# Statuses
+# --------------------------------------------------------------------------
+
+@tasks.loop(seconds=5)
+async def status_loop():
+    ticket_numbers = 0 
+
+    for ticket_id, ticket_value in load_tickets_data().items():
+        if ticket_value:
+            ticket_numbers += 1
+            
+    bot_statuses = cycle([f"Watching {ticket_numbers} tickets", "Playing on True Vanilla Network", "Watching over {guild.member_count} members"])
+    await bot.change_presence(activity=discord.Game(next(bot_statuses)))
 
 # --------------------------------------------------------------------------
 # Start the bot
@@ -696,8 +711,7 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name=INFO["IP"]))
-    print(f'✅ Logged in as {bot.user}')
+    print(f'Logged in as {bot.user}')
     
     bot.tree.add_command(minecraft_user)
     
@@ -716,6 +730,7 @@ async def on_ready():
     
     await schedule_news_loop()
     check_new_role.start()
+    status_loop.start()
 
 # Run the bot
 bot.run(TOKEN)

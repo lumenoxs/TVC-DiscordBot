@@ -96,8 +96,6 @@ class FactionsCog(commands.Cog):
             threadies.append(thread)
         async for thread in factions_channel.archived_threads(limit=None):
             threadies.append(thread)
-        async for thread in factions_channel.active_threads:
-            threadies.append(thread)
             
         print(len(threadies))
 

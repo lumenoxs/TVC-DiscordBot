@@ -43,11 +43,10 @@ class FactionFloodCheckView(discord.ui.View):
         await self.floodcheck_response(interaction, button, "dead")
 
     async def floodcheck_response(self, interaction: discord.Interaction, button: discord.ui.Button, rtype: str):
-        if any(load_faction(str(interaction.channel.id)) == role.id for role in interaction.user.roles):
-            await interaction.followup.send(
-                "You are not part of this faction 🤔"
-            )
+        if not any(load_faction(str(interaction.channel.id)) == role.id for role in interaction.user.roles):
+            await interaction.followup.send("You are not part of this faction 🤔")
             return
+
             
         for child in self.children:
             if isinstance(child, discord.ui.Button):

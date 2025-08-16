@@ -100,7 +100,7 @@ class FactionsCog(commands.Cog):
         print(len(threadies))
 
         for thread in threadies:
-            print()
+            print(thread.applied_tags)
             print("looped")
             if 1346887697595236452 in thread.applied_tags and 1381717937320231083 not in thread.applied_tags and 1387883441550528653 not in thread.applied_tags and 1388028437490307122 not in thread.applied_tags and load_faction(thread.id):
                 print("loop authorised")

@@ -6,7 +6,6 @@ import aiohttp
 import asyncio
 
 tickets_file = "tickets.json"
-WEBHOOK_URL = "https://discord.com/api/webhooks/..."
 
 def load_tickets_data():
     try:

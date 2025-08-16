@@ -706,6 +706,11 @@ async def on_ready():
         bot.add_view(CloseTicket(bot=bot))
     except Exception as e:
         print(f"Couldn't load Ticket extension: {e}")
+        
+    try: 
+        await bot.load_extension("factions.factions")
+    except Exception as e:
+        print(f"Couldn't load Factions extension: {e}")
     
     try:
         synced = await bot.tree.sync()

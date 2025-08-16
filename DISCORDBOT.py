@@ -26,10 +26,10 @@ modbot = commands.Bot(command_prefix="-", intents=intents)
 
 
 load_dotenv("text.env")
-TOKEN = os.getenv("DISCORD_TOKEN")
+TOKEN = os.getenv("TOKEN")
 
 if TOKEN is None:
-    print("Error: DISCORD_TOKEN in text.env is missing")
+    print("Error: TOKEN in text.env is missing")
     exit(1)
 
 # --------------------------------------------------------------------------

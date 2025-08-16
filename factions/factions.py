@@ -44,7 +44,7 @@ class FactionFloodCheckView(discord.ui.View):
 
     async def floodcheck_response(self, interaction: discord.Interaction, button: discord.ui.Button, rtype: str):
         if not any(load_faction(str(interaction.channel.id)) == role.id for role in interaction.user.roles):
-            await interaction.followup.send("You are not part of this faction 🤔")
+            await interaction.response.send_message("You are not part of this faction 🤔", ephemeral=True)
             return
 
             

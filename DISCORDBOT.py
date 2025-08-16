@@ -374,6 +374,8 @@ async def on_message(message):
         await message.reply(
             "Please make sure to send all memes or gifs in <#1405892733129855032>"
         )
+        
+    await bot.process_commands(message)
     
 
 # --------------------------------------------------------------------------

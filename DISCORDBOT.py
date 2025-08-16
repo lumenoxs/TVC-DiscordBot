@@ -699,10 +699,10 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name=INFO["IP"]))
     print(f'✅ Logged in as {bot.user}')
     
-    await bot.load_extension("tickets.tickets")
     bot.tree.add_command(minecraft_user)
     
     try: 
+        await bot.load_extension("tickets.tickets")
         bot.add_view(TicketView(bot=bot))
         bot.add_view(CloseTicket(bot=bot))
     except Exception as e:
@@ -718,5 +718,4 @@ async def on_ready():
     check_new_role.start()
 
 # Run the bot
-
 bot.run(TOKEN)

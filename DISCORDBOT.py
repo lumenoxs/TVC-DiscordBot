@@ -50,15 +50,18 @@ INFO = {
 }
 
 ADMIN = [
-    1279362592300863530,
-    1360495023682093062
+    1279362592300863530, # owner
+    1360495023682093062, # admin
+    1360495294856560741 # manager
 ]
+
 STAFF = [
-    1279362592300863530,
-    1360495023682093062,
-    1360495294856560741,
-    1325727434355773441,
-    1362091819931926688
+    1279362592300863530, # owner
+    1360495023682093062, # admin
+    1360495294856560741, # manager
+    1325727434355773441, # moderator
+    1362091819931926688, # developer
+    1362668964177772565 # staff
 ]
 
 bot.STAFF = STAFF
@@ -72,7 +75,14 @@ def staff(member):
 bot.admin = admin
 bot.staff = staff
 
+guild = bot.get_guild(1279143050496442469)
+
 join_data_file = "join_roles.json"
+news_file = "news_data.json"
+
+# --------------------------------------------------------------------------
+# @new role
+# --------------------------------------------------------------------------
 
 def load_join_data():
     with open(join_data_file, "r") as f:
@@ -85,21 +95,19 @@ def save_join_data(data):
 join_data = load_join_data()
 
 @tasks.loop(minutes=30)
-async def check_expired_roles():
-    now = datetime.datetime.utcnow()
+async def check_new_role():
+    now = datetime.datetime.now()
+    role = guild.get_role(1376242160042512575)
     to_remove = []
 
     for user_id, expiry_str in join_data.items():
         expiry = datetime.datetime.fromisoformat(expiry_str)
         if now >= expiry:
-            guild = bot.get_guild(1279143050496442469)
-            if guild:
-                member = guild.get_member(int(user_id))
-                if member:
-                    role = guild.get_role(1376242160042512575)
-                    if role in member.roles:
-                        await member.remove_roles(role)
-                        print(f"Removed expired role from {member.display_name}")
+            member = guild.get_member(int(user_id))
+            if member:
+                if role in member.roles:
+                    await member.remove_roles(role)
+                    print(f"Removed expired role from {member.display_name}")
             to_remove.append(user_id)
 
     for user_id in to_remove:
@@ -108,10 +116,8 @@ async def check_expired_roles():
         save_join_data(join_data)
 
 # --------------------------------------------------------------------------
-# News data
+# News
 # --------------------------------------------------------------------------
-
-news_file = "news_data.json"
 
 def load_news_data():
     try:
@@ -696,8 +702,11 @@ async def on_ready():
     await bot.load_extension("tickets.tickets")
     bot.tree.add_command(minecraft_user)
     
-    bot.add_view(TicketView(bot=bot))
-    bot.add_view(CloseTicket(bot=bot))
+    try: 
+        bot.add_view(TicketView(bot=bot))
+        bot.add_view(CloseTicket(bot=bot))
+    except Exception as e:
+        print(f"Couldn't load Ticket extension: {e}")
     
     try:
         synced = await bot.tree.sync()
@@ -706,7 +715,7 @@ async def on_ready():
         print(f"Failed to sync slash commands: {e}")
     
     await schedule_news_loop()
-    check_expired_roles.start()
+    check_new_role.start()
 
 # Run the bot
 

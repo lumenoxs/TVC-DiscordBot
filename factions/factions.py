@@ -89,7 +89,19 @@ class FactionsCog(commands.Cog):
             color=discord.Color.blue()
         )
 
-        for thread in self.bot.get_channel(1346851805665169469).archived_threads(limit=None):
+        factions_channel = self.bot.get_channel(1346851805665169469)
+
+        threadies = []
+        for thread in factions_channel.threads:
+            threadies.append(thread)
+        async for thread in factions_channel.archived_threads(limit=None):
+            threadies.append(thread)
+        async for thread in factions_channel.active_threads:
+            threadies.append(thread)
+            
+        print(len(threadies))
+
+        for thread in threadies:
             print()
             print("looped")
             if 1346887697595236452 in thread.applied_tags and 1381717937320231083 not in thread.applied_tags and 1387883441550528653 not in thread.applied_tags and 1388028437490307122 not in thread.applied_tags and load_faction(thread.id):

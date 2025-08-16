@@ -8,6 +8,7 @@ import requests
 import datetime
 from dotenv import load_dotenv
 from tickets.tickets import TicketView, CloseTicket
+from factions.factions import FactionFloodCheckView
     
 # --------------------------------------------------------------------------
 # Discord shenanigans
@@ -709,6 +710,7 @@ async def on_ready():
         
     try: 
         await bot.load_extension("factions.factions")
+        bot.add_view(FactionFloodCheckView(bot=bot))
     except Exception as e:
         print(f"Couldn't load Factions extension: {e}")
     

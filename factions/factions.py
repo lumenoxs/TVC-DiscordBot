@@ -72,7 +72,11 @@ class FactionFloodCheckView(discord.ui.View):
 class FactionsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+        
+    @commands.commands()
+    async def set_faction(self, ctx, fid: int, rid: int):
+        save_factions_data(fid, rid)
+    
     @commands.command()
     async def factions_check(self, ctx):
         embed = discord.Embed(

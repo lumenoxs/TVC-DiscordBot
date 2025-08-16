@@ -104,7 +104,8 @@ class FactionsCog(commands.Cog):
             for thread_tag in thread.applied_tags:
                 thread_tags.append(thread_tag.id)
             print("looped")
-            if 1346887697595236452 in thread_tags and 1381717937320231083 not in thread_tags and 1387883441550528653 not in thread_tags and 1388028437490307122 not in thread_tags and load_faction(thread.id):
+            print(thread_tags)
+            if 1346887697595236452 in thread_tags and 1381717937320231083 not in thread_tags and 1387883441550528653 not in thread_tags and 1388028437490307122 not in thread_tags and load_faction(str(thread.id)):
                 print("loop authorised")
                 thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
                 thread.send(f"<@&{load_faction(thread.id)}>")

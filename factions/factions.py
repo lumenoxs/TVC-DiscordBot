@@ -43,7 +43,7 @@ class FactionFloodCheckView(discord.ui.View):
         await self.floodcheck_response(interaction, button, "dead")
 
     async def floodcheck_response(self, interaction: discord.Interaction, button: discord.ui.Button, rtype: str):
-        if any(load_faction(interaction.channel.id) == role.id for role in interaction.user.roles):
+        if any(load_faction(str(interaction.channel.id)) == role.id for role in interaction.user.roles):
             await interaction.followup.send(
                 "You are not part of this faction 🤔"
             )
@@ -55,7 +55,7 @@ class FactionFloodCheckView(discord.ui.View):
         # I couldnt find anything online on how to disable all the buttons on a view, so the for loop above was done by chatgpt
         
         embed = discord.Embed(
-            title="Faction Flood Check",
+            title="Faction Activity Flood Check",
             description=f"A staff member triggered a faction flood check to update all currently existing factions.\n~~If you are a member of this faction, please select the button below that is the most relevant to this faction.~~\nThis was answered with the response: {rtype}",
             color=discord.Color.blue()
         )
@@ -82,7 +82,7 @@ class FactionsCog(commands.Cog):
         if ctx.author.id != 1225709819890110604:
             return
         embed = discord.Embed(
-            title="Faction Flood Check",
+            title="Faction Activity Flood Check",
             description="A staff member triggered a faction flood check to update all currently existing factions.\nIf you are a member of this faction, please select the button below that is the most relevant to this faction.",
             color=discord.Color.blue()
         )

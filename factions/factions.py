@@ -78,15 +78,22 @@ class FactionsCog(commands.Cog):
         save_factions_data(fid, rid)
     
     @commands.command()
-    async def factions_check(self, ctx):
+    async def floodcheck(self, ctx):
+        print("it ran")
+        if ctx.author.id != 1225709819890110604:
+            print("nono")
+            return
         embed = discord.Embed(
             title="Faction Flood Check",
             description="A staff member triggered a faction flood check to update all currently existing factions.\nIf you are a member of this faction, please select the button below that is the most relevant to this faction.",
             color=discord.Color.blue()
         )
 
-        for thread in self.bot.get_channel(1346851805665169469).threads:
-            if 1346887697595236452 in thread.applied_tags and 1381717937320231083 not in thread.applied_tags and 1387883441550528653 not in thread.applied_tags:
+        for thread in self.bot.get_channel(1346851805665169469).archived_threads(limit=None):
+            print()
+            print("looped")
+            if 1346887697595236452 in thread.applied_tags and 1381717937320231083 not in thread.applied_tags and 1387883441550528653 not in thread.applied_tags and 1388028437490307122 not in thread.applied_tags and load_faction(thread.id):
+                print("loop authorised")
                 thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
                 thread.send(f"<@&{load_faction(thread.id)}>")
 

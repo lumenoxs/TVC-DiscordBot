@@ -67,7 +67,7 @@ class FactionFloodCheckView(discord.ui.View):
         await interaction.followup.send(
             "Done! Thanks for replying."
         )
-        await self.bot.get_channel(1312528601253412945).send(f"Please check the followup on https://discord.com/channels/1279143050496442469/1346851805665169469{interaction.channel.id}")
+        await self.bot.get_channel(1312528601253412945).send(f"Please check the followup on https://discord.com/channels/1279143050496442469/1346851805665169469/threads/{interaction.channel.id}")
 
 class FactionsCog(commands.Cog):
     def __init__(self, bot):

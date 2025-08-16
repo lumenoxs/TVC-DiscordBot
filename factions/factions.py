@@ -103,7 +103,6 @@ class FactionsCog(commands.Cog):
                 thread_tags.append(thread_tag.id)
             if 1346887697595236452 in thread_tags and 1381717937320231083 not in thread_tags and 1387883441550528653 not in thread_tags and 1388028437490307122 not in thread_tags and load_faction(str(thread.id)):
                 try:
-                    await thread.purge(limit=2)
                     await thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
                     await thread.send(f"<@&{load_faction(str(thread.id))}>\n(sorry for the double ping, next time ill make sure to fix all the bugs before running)")
                 except Exception as e:

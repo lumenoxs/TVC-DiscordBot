@@ -73,7 +73,7 @@ class FactionsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @commands.commands()
+    @commands.command()
     async def set_faction(self, ctx, fid: int, rid: int):
         save_factions_data(fid, rid)
     

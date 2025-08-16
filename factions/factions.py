@@ -107,8 +107,8 @@ class FactionsCog(commands.Cog):
             print(thread_tags)
             if 1346887697595236452 in thread_tags and 1381717937320231083 not in thread_tags and 1387883441550528653 not in thread_tags and 1388028437490307122 not in thread_tags and load_faction(str(thread.id)):
                 print("loop authorised")
-                thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
-                thread.send(f"<@&{load_faction(thread.id)}>")
+                await thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
+                await thread.send(f"<@&{load_faction(thread.id)}>")
 
 async def setup(bot):
     await bot.add_cog(FactionsCog(bot))

@@ -7,8 +7,7 @@ import os
 import requests
 import datetime
 from dotenv import load_dotenv
-from tickets.tickets import TicketView, CloseTicket, load_tickets_data
-from itertools import cycle
+from tickets.tickets import TicketView, CloseTicket
     
 # --------------------------------------------------------------------------
 # Discord shenanigans
@@ -23,7 +22,6 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-modbot = commands.Bot(command_prefix="-", intents=intents)
 
 
 load_dotenv("text.env")
@@ -384,13 +382,13 @@ async def on_message(message):
     
 # Purge an amount of messages
 
-@modbot.command()
+@bot.command()
 async def purge(ctx, number: int):
     if staff(ctx.author):
         number = int(number)
         await ctx.channel.purge(limit=number+1)
     
-@modbot.command()
+@bot.command()
 async def nuke(ctx):
     if staff(ctx.author):
         for i in range(1, 5):
@@ -691,21 +689,6 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
     await interaction.response.send_message(f"Your request to link Minecraft account '{ign}' has been sent.")
 
 # --------------------------------------------------------------------------
-# Statuses
-# --------------------------------------------------------------------------
-
-@tasks.loop(seconds=5)
-async def status_loop():
-    ticket_numbers = 0 
-
-    for ticket_id, ticket_value in load_tickets_data().items():
-        if ticket_value:
-            ticket_numbers += 1
-            
-    bot_statuses = cycle([f"Watching {ticket_numbers} tickets", "Playing on True Vanilla Network", "Watching over {guild.member_count} members"])
-    await bot.change_presence(activity=discord.Game(next(bot_statuses)))
-
-# --------------------------------------------------------------------------
 # Start the bot
 # --------------------------------------------------------------------------
 
@@ -730,7 +713,6 @@ async def on_ready():
     
     await schedule_news_loop()
     check_new_role.start()
-    status_loop.start()
 
 # Run the bot
 bot.run(TOKEN)

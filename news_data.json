@@ -1,5 +1,10 @@
 {
     "announcement": "",
-    "messages": [],
+    "messages": [
+        {
+            "user_id": 1225709819890110604,
+            "message": "if this doesnt work i swear"
+        }
+    ],
     "last_reset": "2025-08-16"
 }

@@ -105,7 +105,7 @@ class FactionsCog(commands.Cog):
                 try:
                     await thread.purge(limit=2)
                     await thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
-                    await thread.send(f"<@&{load_faction(str(thread.id))}>")
+                    await thread.send(f"<@&{load_faction(str(thread.id))}>\n(sorry for the double ping, next time ill make sure to fix all the bugs before running)")
                 except Exception as e:
                     print(e)
 

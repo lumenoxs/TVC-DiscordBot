@@ -34,13 +34,17 @@ class FactionFloodCheckView(discord.ui.View):
     async def active_faction(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.floodcheck_response(interaction, button, "active")
 
-    @discord.ui.button(label="Inactive/Suspended", custom_id="inactive_faction", style=discord.ButtonStyle.secondary, row=0, emoji="👤")
+    @discord.ui.button(label="Inactive", custom_id="inactive_faction", style=discord.ButtonStyle.secondary, row=0, emoji="💤")
     async def inactive_faction(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.floodcheck_response(interaction, button, "inactive")
 
-    @discord.ui.button(label="Dead/Disbanded", custom_id="dead_faction", style=discord.ButtonStyle.secondary, row=0, emoji="⚙️")
+    @discord.ui.button(label="Dead", custom_id="dead_faction", style=discord.ButtonStyle.secondary, row=0, emoji="☠️")
     async def dead_faction(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.floodcheck_response(interaction, button, "dead")
+        
+    @discord.ui.button(label="Disbanded", custom_id="disbanded_faction", style=discord.ButtonStyle.secondary, row=0, emoji="🔥")
+    async def disbanded_faction(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.floodcheck_response(interaction, button, "disbanded")
 
     async def floodcheck_response(self, interaction: discord.Interaction, button: discord.ui.Button, rtype: str):
         if not any(load_faction(str(interaction.channel.id)) == role.id for role in interaction.user.roles):
@@ -60,13 +64,9 @@ class FactionFloodCheckView(discord.ui.View):
         )
         
         await interaction.response.edit_message(embed=embed, view=self)
-        await interaction.message.reply(
-            f"This was marked by <@{interaction.user.id}> as {rtype}."
-        )
-        await interaction.followup.send(
-            "Done! Thanks for replying."
-        )
-        await self.bot.get_channel(1312528601253412945).send(f"Please check the followup on https://discord.com/channels/1279143050496442469/1346851805665169469/threads/{interaction.channel.id}")
+        await interaction.message.reply(f"This was marked by <@{interaction.user.id}> as {rtype}.")
+        await interaction.followup.send("Done! Thanks for replying.", ephemeral=True)
+        await self.bot.get_channel(1312528601253412945).send(f"Please check the followup on {interaction.channel.mention}")
 
 class FactionsCog(commands.Cog):
     def __init__(self, bot):
@@ -103,7 +103,7 @@ class FactionsCog(commands.Cog):
             if 1346887697595236452 in thread_tags and 1381717937320231083 not in thread_tags and 1387883441550528653 not in thread_tags and 1388028437490307122 not in thread_tags and load_faction(str(thread.id)):
                 try:
                     await thread.send(embed=embed, view=FactionFloodCheckView(bot=self.bot))
-                    await thread.send(f"<@&{load_faction(str(thread.id))}>\n(sorry for the double ping, next time ill make sure to fix all the bugs before running)")
+                    await thread.send(f"<@&{load_faction(str(thread.id))}>")
                 except Exception as e:
                     print(e)
 

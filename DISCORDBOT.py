@@ -7,8 +7,8 @@ import os
 import requests
 import datetime
 from dotenv import load_dotenv
-from tickets.tickets import TicketView, CloseTicket
-from factions.factions import FactionFloodCheckView
+from tickets import TicketView, CloseTicket
+from factions import FactionFloodCheckView
     
 # --------------------------------------------------------------------------
 # Discord shenanigans
@@ -702,14 +702,14 @@ async def on_ready():
     bot.tree.add_command(minecraft_user)
     
     try: 
-        await bot.load_extension("tickets.tickets")
+        await bot.load_extension("tickets")
         bot.add_view(TicketView(bot=bot))
         bot.add_view(CloseTicket(bot=bot))
     except Exception as e:
         print(f"Couldn't load Ticket extension: {e}")
         
     try: 
-        await bot.load_extension("factions.factions")
+        await bot.load_extension("factions")
         bot.add_view(FactionFloodCheckView(bot=bot))
     except Exception as e:
         print(f"Couldn't load Factions extension: {e}")

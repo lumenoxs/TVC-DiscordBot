@@ -1,14 +1,5 @@
 {
     "announcement": "",
-    "messages": [
-        {
-            "user_id": 1225709819890110604,
-            "message": "if this doesnt work i swear"
-        },
-        {
-            "user_id": 1096124096896573500,
-            "message": "\u201c\u2018`\\\\"
-        }
-    ],
-    "last_reset": "2025-08-16"
+    "messages": [],
+    "last_reset": "2025-08-23"
 }

@@ -77,6 +77,8 @@ bot.staff = staff
 
 guild = bot.get_guild(1279143050496442469)
 
+print(guild)
+
 join_data_file = "join_roles.json"
 news_file = "news_data.json"
 
@@ -97,6 +99,7 @@ join_data = load_join_data()
 @tasks.loop(minutes=30)
 async def check_new_role():
     now = datetime.datetime.now()
+    guild = bot.get_guild(1279143050496442469)
     role = guild.get_role(1376242160042512575)
     to_remove = []
 

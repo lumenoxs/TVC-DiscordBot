@@ -4,8 +4,13 @@ import json
 import random
 import aiohttp
 import asyncio
+import os
+from dotenv import load_dotenv
 
 tickets_file = "tickets.json"
+
+load_dotenv("webhooks.env")
+alerts_webhook = os.getenv("ALERTS")
 
 def load_tickets_data():
     try:
@@ -49,7 +54,7 @@ class AlertModal(discord.ui.Modal, title="Send Quick Alert"):
         )
 
         async with aiohttp.ClientSession() as session:
-            webhook = discord.Webhook.from_url("https://discord.com/api/webhooks/1363193110926196958/eSDAHJwr5BBRUNBvEgg73OsbKBIQLC4DKMvcpMrf07lLS1l2lJCbmTUE7jKDV_o8G-66", session=session)
+            webhook = discord.Webhook.from_url(alerts_webhook, session=session)
             await webhook.send(embed=embed)
             role = interaction.guild.get_role(1362668964177772565)
             if role:
@@ -78,7 +83,7 @@ class SuggestModal(discord.ui.Modal, title="Suggestions"):
             color=discord.Color.blue()
         )
         async with aiohttp.ClientSession() as session:
-            webhook = discord.Webhook.from_url("https://discord.com/api/webhooks/1363193110926196958/eSDAHJwr5BBRUNBvEgg73OsbKBIQLC4DKMvcpMrf07lLS1l2lJCbmTUE7jKDV_o8G-66", session=session)
+            webhook = discord.Webhook.from_url(alerts_webhook, session=session)
             await webhook.send(embed=embed)
         await interaction.response.send_message("✅ Suggestion sent!", ephemeral=True)
 

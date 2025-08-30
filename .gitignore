@@ -1,3 +1,4 @@
 *.env
 *.pyc
 *.json
+__pycache__/

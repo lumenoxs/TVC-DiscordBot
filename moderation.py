@@ -4,25 +4,21 @@ import json
 warns_file = "warns.json"
 
 def load_warns_data():
-    try:
-        with open(warns_file, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    with open(warns_file, "r") as f:
+        return json.load(f)
 
 def load_warns(user_id):
-    try:
-        with open(warns_file, "r") as f:
-            data = json.load(f)
-            return data.get(user_id, False)
-    except FileNotFoundError:
-        return False
+    with open(warns_file, "r") as f:
+        data = json.load(f)
+        return data.get(user_id, {})
 
 def number_warns(user_id):
     return len(load_warns(user_id).keys())
 
 def save_warns_data(user_id, warning):
     data = load_warns_data()
+    if user_id not in data:
+        data[str(user_id)] = {} 
     data[str(user_id)][str(number_warns(user_id))] = warning
     with open(warns_file, "w") as f:
         json.dump(data, f, indent=4)

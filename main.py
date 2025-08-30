@@ -390,13 +390,13 @@ async def on_message(message):
 
 @bot.command()
 async def purge(ctx, number: int):
-    if staff(ctx.author):
+    if admin(ctx.author):
         number = int(number)
         await ctx.channel.purge(limit=number+1)
     
 @bot.command()
 async def nuke(ctx):
-    if staff(ctx.author):
+    if admin(ctx.author):
         for i in range(1, 5):
             await ctx.channel.purge(limit=100)
 
@@ -409,6 +409,12 @@ async def nuke(ctx):
 @bot.command()
 async def ping(ctx):
     await ctx.send("🏓 Pong!")
+
+@bot.command()
+async def echo(ctx, *args):
+    if admin(ctx.author):
+        await ctx.send(args)
+        print(args)
 
 # Server IP
 
@@ -716,6 +722,12 @@ async def on_ready():
         bot.add_view(FactionFloodCheckView(bot=bot))
     except Exception as e:
         print(f"Couldn't load Factions extension: {e}")
+    
+    try: 
+        await bot.load_extension("moderation")
+    except Exception as e:
+        print(f"Couldn't load Moderation extension: {e}")
+    
     
     try:
         synced = await bot.tree.sync()

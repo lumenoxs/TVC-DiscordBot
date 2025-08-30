@@ -224,10 +224,12 @@ class TicketCog(commands.Cog):
         await ctx.send(f"ID: {ctx.channel.id}")
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def set_ticket(self, ctx, user_id):
         save_tickets_data(ctx.channel.id, user_id)
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def clean(self, ctx, keep_thread: int):
         channel = self.bot.get_channel(1338143330286043259)
         if not channel:
@@ -244,24 +246,6 @@ class TicketCog(commands.Cog):
                 await ctx.send(f"🧹 Deleted: {thread.name}")
             except Exception:
                 await ctx.send(f"Couldn't delete {thread.name}")
-
-    @commands.command()
-    async def warn(self, ctx, number: int):
-        user = self.bot.get_user(load_ticket(ctx.channel.id))
-        await ctx.message.delete()
-        if not user:
-            print("User not found.")
-            return
-
-        msg = {
-            1: f"Detected that the author ({user.mention}) hasn't sent any messages yet.",
-            2: "Detected inactivity in this ticket."
-        }.get(number, None)
-
-        msg += "\nDeleting this ticket in 24 hours if there are no replies."
-        
-        if msg:
-            await ctx.send(msg)
 
     @commands.command()
     @commands.has_permissions(administrator=True)

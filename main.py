@@ -381,25 +381,6 @@ async def on_message(message):
         
     await bot.process_commands(message)
     
-
-# --------------------------------------------------------------------------
-# MODERATION COMMANDS
-# --------------------------------------------------------------------------
-    
-# Purge an amount of messages
-
-@bot.command()
-async def purge(ctx, number: int):
-    if admin(ctx.author):
-        number = int(number)
-        await ctx.channel.purge(limit=number+1)
-    
-@bot.command()
-async def nuke(ctx):
-    if admin(ctx.author):
-        for i in range(1, 5):
-            await ctx.channel.purge(limit=100)
-
 # --------------------------------------------------------------------------
 # COMMANDS
 # --------------------------------------------------------------------------

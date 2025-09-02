@@ -81,6 +81,8 @@ print(guild)
 
 join_data_file = "join_roles.json"
 news_file = "news_data.json"
+trivia_questions_file = "trivia_questions.json"
+trivia_questions = {}
 
 # --------------------------------------------------------------------------
 # @new role
@@ -335,7 +337,7 @@ async def on_member_remove(member):
     channel = bot.get_channel(1279361679192231996)
     if channel:
         await channel.send(f"User {member.mention} (*{member.display_name}*) left.")
-        
+
 @bot.event
 async def on_message(message):
     if (
@@ -377,8 +379,7 @@ async def on_message(message):
     elif "tenor.com" in message.content:
         await message.reply(
             "Please make sure to send all memes or gifs in <#1405892733129855032>"
-        )
-        
+        )     
     await bot.process_commands(message)
 
 # --------------------------------------------------------------------------
@@ -425,6 +426,9 @@ def process_rules_file(filename):
 
                 current_article["subheadings"].append(line[4:].strip())
 
+        elif line.startswith("// "):
+            continue
+        
         else:
             current_paragraph.append(line)
 
@@ -565,6 +569,11 @@ async def on_ready():
         await bot.load_extension("moderation")
     except Exception as e:
         print(f"Couldn't load Moderation extension: {e}")
+        
+    try: 
+        await bot.load_extension("questions")
+    except Exception as e:
+        print(f"Couldn't load Questions extension: {e}")
     
     
     try:

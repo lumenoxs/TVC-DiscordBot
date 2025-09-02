@@ -33,15 +33,9 @@ No hacking is permitted in any way possible, unless conflicting with the "Dupes"
 You can not log out of an ongoing fight. You may also not use anchors or crystals in combat (usage for a trap is fine).
 ### **Illegal items**:
 Being found using or possessing illegal items will result in an inventory wipe + 3 day ban.
-# Previous Seasons
-## *We no longer do seasons on the main world. However, we may add another gamemode/world with different rules and with resets*
-### **S1 (Season 1)**: 
-https://discord.com/channels/1279143050496442469/1279143050496442471/1297957928111964172 - <t:1729527660:R> - <t:1729527660:D>
-### **S2 (Season 2)**: 
-https://discord.com/channels/1279143050496442469/1312528881529524224/1326607777094701107 - <t:1736358300:R> - <t:1736358300:D>
-### **S3 (Season 3)**: 
-https://discord.com/channels/1279143050496442469/1312528881529524224/1335665514667708427 - <t:1738517820:R> - <t:1738517820:D>
-### **S4 (Season 4)**:
+# World Age
+## *We no longer do seasons on the applecore gameworld. However, windfall has resets.*
+### **Applecore Gameworld**:
 https://discord.com/channels/1279143050496442469/1312528881529524224/1388187230618652682 - <t:1751040000:R> - <t:1751040000:D>
 # Further info on the rules
 ## 

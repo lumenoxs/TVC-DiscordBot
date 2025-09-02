@@ -1,6 +1,6 @@
 from discord.ext import commands
 import json
-from main import staff, admin
+from main import staff, admin  # noqa: F401
 
 warns_file = "warns.json"
 

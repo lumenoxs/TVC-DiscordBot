@@ -9,10 +9,16 @@ from dotenv import load_dotenv
 load_dotenv("secrets.env")
 questions_url = os.getenv("QUESTIONS")
 trivia_questions_file = "trivia_questions.json"
-trivia_questions = {}
+        
+def load_questions():
+    try:
+        with open(trivia_questions_file, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
 
 def add_question(message_id, question, answer, letter):
-    global trivia_questions
+    trivia_questions = load_questions()
     trivia_questions[message_id] = {
         "question": question,
         "answer": answer,
@@ -22,25 +28,11 @@ def add_question(message_id, question, answer, letter):
         json.dump(trivia_questions, f, indent=4)
 
 def remove_question(message_id):
-    global trivia_questions
+    trivia_questions = load_questions()
     if message_id in trivia_questions:
         del trivia_questions[message_id]
     with open(trivia_questions_file, "w") as f:
         json.dump(trivia_questions, f, indent=4)
-        
-def load_questions():
-    global trivia_questions
-    try:
-        with open(trivia_questions_file, "r") as f:
-            trivia_questions = json.load(f)
-    except FileNotFoundError:
-        trivia_questions = {}
-
-
-def updateTriviaQuestions():
-    global trivia_questions
-    trivia_questions = load_questions()
-    
 
 class QuestionsCog(commands.Cog):
     def __init__(self, bot):
@@ -61,17 +53,19 @@ class QuestionsCog(commands.Cog):
             
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author == self.bot.user:
-            return
-        elif message.reference and message.reference.message_id in trivia_questions:
-            if message.content.strip().upper() in ["A", "B", "C", "D"] and message.content.strip().upper() == trivia_questions[message.reference.message_id]["letter"]:
+        trivia_questions = load_questions()
+        if message.reference and str(message.reference.message_id) in trivia_questions.keys() and message.author.id != self.bot.user.id:
+            if message.content.strip().upper() in ["A", "B", "C", "D"] and message.content.strip().upper() == trivia_questions[str(message.reference.message_id)]["letter"]:
                 await message.reply("Correct answer! 🎉")
                 remove_question(message.reference.message_id)
-            elif message.content.strip().upper() == trivia_questions[message.reference.message_id]["answer"]:
+            elif message.content.strip().upper() in ["1", "2", "3", "4"] and message.content.strip().upper() == trivia_questions[str(message.reference.message_id)]["letter"].replace("A", "1").replace("B", "2").replace("C", "3").replace("D", "4"):
+                await message.reply("Correct answer! 🎉")
+                remove_question(message.reference.message_id)
+            elif message.content.strip().upper() == trivia_questions[str(message.reference.message_id)]["answer"].upper():
                 await message.reply("Correct answer! 🎉")
                 remove_question(message.reference.message_id)
             else:
-                await message.reply(f"Wrong answer! The correct answer was: {trivia_questions[message.reference.message_id]['answer']} ({trivia_questions[message.reference.message_id]['letter']})")
+                await message.reply(f"Wrong answer! The correct answer was: {trivia_questions[str(message.reference.message_id)]['answer']} ({trivia_questions[str(message.reference.message_id)]['letter']})")
                 remove_question(message.reference.message_id)
 
 async def setup(bot):

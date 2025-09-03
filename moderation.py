@@ -44,7 +44,7 @@ class ModerationCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_message_delete(self, plyd):
-        if plyd.message.author.bot or plyd.cached_message:
+        if plyd.cached_message:
             return
         channel = self.bot.get_channel(1312528601253412945)
         dchannel = self.bot.get_channel(plyd.channel_id)
@@ -59,7 +59,7 @@ class ModerationCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_message_edit(self, plyd):
-        if plyd.message.author.bot or plyd.cached_message:
+        if plyd.cached_message:
             return
         channel = self.bot.get_channel(1312528601253412945)
         await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.mention}\nMessage:\n```{plyd.message.content}```")

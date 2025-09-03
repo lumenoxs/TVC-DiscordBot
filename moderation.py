@@ -1,14 +1,15 @@
 from discord.ext import commands
 import json
+from datetime import timedelta
 
 warns_file = "warns.json"
 
 punishments = {
-    1: "none",
+    1: "none:0",
     2: "mute:1h",
     3: "mute:1d",
     4: "mute:1w",
-    5: "kick",
+    5: "kick:0",
     6: "mute:1m"
 }
 
@@ -49,9 +50,46 @@ class ModerationCog(commands.Cog):
         user = ctx.message.mentions[0]
         user = ctx.guild.get_member(user.id)
         reason = " ".join(args[1:]) if len(args) > 1 else "No reason provided"
-        save_warns_data(user.id, reason)
         numStrikes = number_warns(user.id)
-        await ctx.send(f"Warned <@{user.id}> for reason: {reason}\nThis is their {ordinal(numStrikes)} strike.")
+        msg = f"Warned <@{user.id}> for reason: {reason}"
+        save_warns_data(user.id, reason)
+        
+        if numStrikes in punishments.keys():
+            action = punishments[numStrikes].split(":")[0]
+            duration = punishments[numStrikes].split(":")[1]
+            if action == "none":
+                pass
+            elif action == "mute":
+                if duration.endswith("h"):
+                    hours = int(duration[:-1])
+                    timeoutT = timedelta(hours=hours)
+                    msg += f"\nMuted for {hours} hour(s) as this was their {ordinal(numStrikes)} strike."
+                elif duration.endswith("d"):
+                    days = int(duration[:-1])
+                    timeoutT = timedelta(days=days)
+                    msg += f"\nMuted for {days} day(s) as this was their {ordinal(numStrikes)} strike."
+                elif duration.endswith("w"):
+                    weeks = int(duration[:-1])
+                    timeoutT = timedelta(weeks=weeks)
+                    msg += f"\nMuted for {weeks} week(s) as this was their {ordinal(numStrikes)} strike."
+                elif duration.endswith("min"):
+                    minutes = int(duration[:-3])
+                    timeoutT = timedelta(minutes=minutes)
+                    msg += f"\nMuted for {minutes} minute(s) as this was their {ordinal(numStrikes)} strike."
+                elif duration.endswith("m"):
+                    months = int(duration[:-1])
+                    timeoutT = timedelta(days=31*months)
+                    msg += "\nMuted for {months} month(s)."
+                await user.timeout(duration=timeoutT, reason=f"{ordinal(numStrikes)} strike. Reason: {reason}")
+            elif action == "kick":
+                await user.kick(reason=f"{ordinal(numStrikes)} strikes. Reason: {reason}")
+                msg += "\nKicked."
+            else:
+                msg += f"\nThis is their {ordinal(numStrikes)} strike. No action was taken."
+        else:
+            msg += f"\nThis is their {ordinal(numStrikes)} strike. No action was taken."
+        
+        await ctx.send(msg)
     
     @commands.Cog.listener()
     async def on_raw_message_delete(self, plyd):

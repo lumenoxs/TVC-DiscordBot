@@ -23,7 +23,7 @@ def load_warns(user_id):
         return data.get(str(user_id), {})
 
 def number_warns(user_id):
-    return len(load_warns(user_id).keys())
+    return len(load_warns(user_id).keys())+1
 
 def save_warns_data(user_id, warning):
     data = load_warns_data()
@@ -80,7 +80,7 @@ class ModerationCog(commands.Cog):
                     months = int(duration[:-1])
                     timeoutT = timedelta(days=31*months)
                     msg += "\nMuted for {months} month(s)."
-                await user.timeout(duration=timeoutT, reason=f"{ordinal(numStrikes)} strike. Reason: {reason}")
+                await user.timeout(until=timeoutT, reason=f"{ordinal(numStrikes)} strike. Reason: {reason}")
             elif action == "kick":
                 await user.kick(reason=f"{ordinal(numStrikes)} strikes. Reason: {reason}")
                 msg += "\nKicked."
@@ -121,17 +121,17 @@ class ModerationCog(commands.Cog):
         await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.mention}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
     
     
-    # @commands.command()
-    # async def purge(self, ctx, number: int):
-    #     if admin(ctx.author):
-    #         number = int(number)
-    #         await ctx.channel.purge(limit=number+1)
+    @commands.command()
+    async def purge(self, ctx, number: int):
+        if self.bot.admin(ctx.author):
+            number = int(number)
+            await ctx.channel.purge(limit=number+1)
         
-    # @commands.command()
-    # async def nuke(self, ctx):
-    #     if admin(ctx.author):
-    #         for i in range(1, 5):
-    #             await ctx.channel.purge(limit=100)
+    @commands.command()
+    async def nuke(self, ctx):
+        if self.bot.admin(ctx.author):
+            for i in range(1, 5):
+                await ctx.channel.purge(limit=100)
     
     
 async def setup(bot):

@@ -75,10 +75,6 @@ def staff(member):
 bot.admin = admin
 bot.staff = staff
 
-guild = bot.get_guild(1279143050496442469)
-
-print(guild)
-
 join_data_file = "join_roles.json"
 news_file = "news_data.json"
 trivia_questions_file = "trivia_questions.json"
@@ -546,41 +542,45 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
 # Start the bot
 # --------------------------------------------------------------------------
 
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
+async def load_cogs():
+    cogs = ["tickets", "factions", "moderation", "questions", "roles"]
     
-    bot.tree.add_command(minecraft_user)
+    for cog in cogs:
+        try:
+            await bot.load_extension(cog)
+            print(f"Loaded {cog} extension")
+        except Exception as e:
+            print(f"Couldn't load {cog} extension: {e}")
+            
+async def load_views():
+    views = [TicketView, CloseTicket, FactionFloodCheckView]
     
-    try: 
-        await bot.load_extension("tickets")
-        bot.add_view(TicketView(bot=bot))
-        bot.add_view(CloseTicket(bot=bot))
-    except Exception as e:
-        print(f"Couldn't load Ticket extension: {e}")
-        
-    try: 
-        await bot.load_extension("factions")
-        bot.add_view(FactionFloodCheckView(bot=bot))
-    except Exception as e:
-        print(f"Couldn't load Factions extension: {e}")
+    for view in views:
+        try:
+            bot.add_view(view(bot=bot))
+            print(f"Loaded {view.__name__} view")
+        except Exception as e:
+            print(f"Couldn't load {view.__name__} view: {e}")
     
-    try: 
-        await bot.load_extension("moderation")
-    except Exception as e:
-        print(f"Couldn't load Moderation extension: {e}")
-        
-    try: 
-        await bot.load_extension("questions")
-    except Exception as e:
-        print(f"Couldn't load Questions extension: {e}")
-    
-    
+async def load_tree():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} slash command(s)")
     except Exception as e:
         print(f"Failed to sync slash commands: {e}")
+    
+@bot.event
+async def on_ready():
+    global guild
+    print(f'Logged in as {bot.user}')
+    
+    bot.tree.add_command(minecraft_user)
+
+    guild = bot.get_guild(1279143050496442469)
+    
+    await load_cogs()
+    await load_views()
+    await load_tree()
     
     await schedule_news_loop()
     check_new_role.start()

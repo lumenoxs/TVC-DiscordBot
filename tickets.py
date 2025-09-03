@@ -3,7 +3,6 @@ from discord.ext import commands
 import json
 import random
 import aiohttp
-import asyncio
 import os
 from dotenv import load_dotenv
 
@@ -157,33 +156,15 @@ class TicketView(discord.ui.View):
                 type=discord.ChannelType.private_thread,
                 invitable=False
             )
+
+
+        await thread.send(user.mention, delete_after=1)
+
+        # Add staff members
+        role = interaction.guild.get_role(1362668964177772565)
+        if role:
+            await thread.send(role.mention, delete_after=1)
         
-        # Ensure thread members are fetched once
-        await thread.fetch_members()
-        thread_member_ids = {member.id for member in thread.members}
-
-        # Collect users to add
-        to_add = set()
-
-        # Add the main user if not in thread
-        if user.id not in thread_member_ids:
-            to_add.add(user)
-
-        # Add staff role members
-        for role_id in self.bot.STAFF:
-            role = interaction.guild.get_role(role_id)
-            if role:
-                for member in role.members:
-                    if member.id not in thread_member_ids:
-                        to_add.add(member)
-
-        for member in to_add:
-            try:
-                await thread.add_user(member)
-            except Exception as e:
-                print(f"Failed to add {member.display_name}: {e}")
-                await asyncio.sleep(0.5)
-                await thread.add_user(member)
 
         embed = discord.Embed(
             description=f"**Ticket opened by {user.mention} for `{ticket_type}`.**\nSupport will be with you shortly.",

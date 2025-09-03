@@ -1,6 +1,5 @@
 from discord.ext import commands
 import json
-from main import staff, admin  # noqa: F401
 
 warns_file = "warns.json"
 
@@ -40,17 +39,17 @@ class ModerationCog(commands.Cog):
         save_warns_data(user.id, reason)
         await ctx.send(f"Warned <@{user.id}> for reason: {reason}\nThis is their {ordinal(number_warns(user.id))} strike.")
         
-    @commands.command()
-    async def purge(self, ctx, number: int):
-        if admin(ctx.author):
-            number = int(number)
-            await ctx.channel.purge(limit=number+1)
+    # @commands.command()
+    # async def purge(self, ctx, number: int):
+    #     if admin(ctx.author):
+    #         number = int(number)
+    #         await ctx.channel.purge(limit=number+1)
         
-    @commands.command()
-    async def nuke(self, ctx):
-        if admin(ctx.author):
-            for i in range(1, 5):
-                await ctx.channel.purge(limit=100)
+    # @commands.command()
+    # async def nuke(self, ctx):
+    #     if admin(ctx.author):
+    #         for i in range(1, 5):
+    #             await ctx.channel.purge(limit=100)
     
     
 async def setup(bot):

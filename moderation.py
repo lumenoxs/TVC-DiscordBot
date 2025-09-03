@@ -3,6 +3,15 @@ import json
 
 warns_file = "warns.json"
 
+punishments = {
+    1: "none",
+    2: "mute:1h",
+    3: "mute:1d",
+    4: "mute:1w",
+    5: "kick",
+    6: "mute:1m"
+}
+
 def load_warns_data():
     with open(warns_file, "r") as f:
         return json.load(f)
@@ -28,7 +37,7 @@ def save_warns_data(user_id, warning):
         json.dump(data, f, indent=4)
         
 def ordinal(n):
-    return "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
+    return "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]) # credit to copilot for this function :)
 
 class ModerationCog(commands.Cog):
     def __init__(self, bot):
@@ -38,9 +47,11 @@ class ModerationCog(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def warn(self, ctx, *args):
         user = ctx.message.mentions[0]
+        user = ctx.guild.get_member(user.id)
         reason = " ".join(args[1:]) if len(args) > 1 else "No reason provided"
         save_warns_data(user.id, reason)
-        await ctx.send(f"Warned <@{user.id}> for reason: {reason}\nThis is their {ordinal(number_warns(user.id))} strike.")
+        numStrikes = number_warns(user.id)
+        await ctx.send(f"Warned <@{user.id}> for reason: {reason}\nThis is their {ordinal(numStrikes)} strike.")
     
     @commands.Cog.listener()
     async def on_raw_message_delete(self, plyd):

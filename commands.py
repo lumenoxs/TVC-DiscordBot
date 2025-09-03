@@ -9,9 +9,7 @@ channels["promo"] = 0
 channels["memes"] = 0
 channels["spam"] = 0
 channels["dank"] = 0
-channels["alerts"] = 0
-channels["staff_spam"] = 0
-channels["join_cmd"] = [channels["general"], channels["spam"], channels["help"], channels["staff_spam"]]
+channels["alerts"] = 1312528601253412945
 
 class CommandsCog(commands.Cog):
     def __init__(self, bot):
@@ -20,24 +18,6 @@ class CommandsCog(commands.Cog):
     @commands.command()
     async def ping(self, ctx):
         await ctx.send("🏓 Pong!")
-        
-    # Server join info
-
-    @commands.command()
-    async def join(self, ctx):
-        if ctx.channel.id not in channels["join_cmd"]:
-            try:
-                await ctx.message.delete()
-            except discord.Forbidden:
-                pass
-            await ctx.send(f"Please use all commands in <#{INFO["CHANNELS"]["BOT"]}>.", delete_after=5)
-            return
-        main = discord.Embed(
-            title="Server IP",
-            description=f"**IP:** `{INFO["IP"]}`\n**Version:** `{INFO["VERSIONS"]}`",
-            color=discord.Color.blue()
-        )
-        await ctx.send(embed=main)
     
     # Discord member count
 
@@ -59,11 +39,13 @@ class CommandsCog(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_command_error(ctx, error):
+    async def on_command_error(self, ctx, error):
         if isinstance(error, discord.ext.commands.errors.CommandNotFound):
             await ctx.send("Couldnt find that command :/")
             print(f"Wrong command ran by {ctx.author.display_name}, {ctx.author.name}")
         else:
+            await ctx.send("An error occurred while processing the command.")
+            await self.bot.get_channel(channels["alerts"]).send(f"Error occurred: {str(error)}")
             raise error
 
 def setup(bot):

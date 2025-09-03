@@ -58,7 +58,7 @@ class ModerationCog(commands.Cog):
             action = punishments[numStrikes].split(":")[0]
             duration = punishments[numStrikes].split(":")[1]
             if action == "none":
-                pass
+                msg += f"\nThis is their {ordinal(numStrikes)} strike. No action was taken."
             elif action == "mute":
                 if duration.endswith("h"):
                     hours = int(duration[:-1])
@@ -80,7 +80,7 @@ class ModerationCog(commands.Cog):
                     months = int(duration[:-1])
                     timeoutT = timedelta(days=31*months)
                     msg += "\nMuted for {months} month(s)."
-                await user.timeout(until=timeoutT, reason=f"{ordinal(numStrikes)} strike. Reason: {reason}")
+                await user.timeout(timeoutT, reason=f"{ordinal(numStrikes)} strike. Reason: {reason}")
             elif action == "kick":
                 await user.kick(reason=f"{ordinal(numStrikes)} strikes. Reason: {reason}")
                 msg += "\nKicked."
@@ -118,6 +118,10 @@ class ModerationCog(commands.Cog):
         if message_before.author.bot:
             return
         channel = self.bot.get_channel(1312528601253412945)
+        if message_after.content == message_before.content:
+            return
+        elif message_after.content.startswith("http"):
+            return
         await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.mention}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
     
     

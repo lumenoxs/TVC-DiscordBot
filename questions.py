@@ -19,7 +19,7 @@ def load_questions():
 
 def add_question(message_id, question, answer, letter):
     trivia_questions = load_questions()
-    trivia_questions[message_id] = {
+    trivia_questions[str(message_id)] = {
         "question": question,
         "answer": answer,
         "letter": letter
@@ -28,6 +28,7 @@ def add_question(message_id, question, answer, letter):
         json.dump(trivia_questions, f, indent=4)
 
 def remove_question(message_id):
+    message_id = str(message_id)
     trivia_questions = load_questions()
     if message_id in trivia_questions:
         del trivia_questions[message_id]

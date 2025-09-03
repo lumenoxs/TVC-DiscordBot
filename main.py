@@ -542,6 +542,11 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
 # Start the bot
 # --------------------------------------------------------------------------
 
+@bot.command()
+async def echo(ctx, *, message):
+    if staff(ctx.author):
+        await ctx.send(message.replace("\\n", "\n").replace("@", "[@]").replace("<", "[<]").replace(">", "[>]"))
+
 async def load_cogs():
     cogs = ["tickets", "factions", "moderation", "questions", "roles"]
     

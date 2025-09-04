@@ -26,12 +26,18 @@ class RolesCog(commands.Cog):
             if plyd.emoji.id is None and plyd.emoji.name in roles.keys():
                 role = user.guild.get_role(roles[plyd.emoji.name])
                 if role:
+                    if role in user.roles:
+                        await user.send(f"You already have the role {role.name}!")
+                        return
                     print(f"Added role {role.name} to {user.display_name}")
                     await user.add_roles(role)
                     await user.send(f"Added role {role.name}!")
             if plyd.emoji.id in roles.keys():
                 role = user.guild.get_role(roles[plyd.emoji.id])
                 if role:
+                    if role in user.roles:
+                        await user.send(f"You already have the role {role.name}!")
+                        return
                     print(f"Added role {role.name} to {user.display_name}")
                     await user.add_roles(role)
                     await user.send(f"Added role {role.name}!")
@@ -46,12 +52,18 @@ class RolesCog(commands.Cog):
             if plyd.emoji.id is None and plyd.emoji.name in roles.keys():
                 role = user.guild.get_role(roles[plyd.emoji.name])
                 if role:
+                    if role not in user.roles:
+                        await user.send(f"You don't have the role {role.name}!")
+                        return
                     print(f"Removed role {role.name} from {user.display_name}")
                     await user.remove_roles(role)
                     await user.send(f"Removed role {role.name}!")
             if plyd.emoji.id in roles.keys():
                 role = self.bot.get_guild(1279143050496442469).get_role(roles[plyd.emoji.id])
                 if role:
+                    if role not in user.roles:
+                        await user.send(f"You don't have the role {role.name}!")
+                        return
                     print(f"Removed role {role.name} from {user.display_name}")
                     await user.remove_roles(role)
                     await user.send(f"Removed role {role.name}!")

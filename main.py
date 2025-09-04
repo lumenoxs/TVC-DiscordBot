@@ -24,6 +24,7 @@ tree = app_commands.CommandTree(client)
 
 bot = commands.Bot(command_prefix=["!", "-"], intents=intents)
 
+bot.client = client
 
 load_dotenv("text.env")
 TOKEN = os.getenv("TOKEN")
@@ -336,7 +337,9 @@ async def on_member_remove(member):
 
 @bot.event
 async def on_message(message):
-    if (
+    if (message.author.id == 1337890473188003893):
+        return
+    elif (
         message.channel.id == 1279363971639545896
         and not message.reference
         and message.author.id != 1225709819890110604
@@ -375,8 +378,9 @@ async def on_message(message):
     elif "tenor.com" in message.content:
         await message.reply(
             "Please make sure to send all memes or gifs in <#1405892733129855032>"
-        )     
+        )
     await bot.process_commands(message)
+    
 
 # --------------------------------------------------------------------------
 # Server rules

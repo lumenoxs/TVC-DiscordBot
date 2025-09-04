@@ -58,7 +58,7 @@ class RolesCog(commands.Cog):
     async def getroles(self, ctx):
         if ctx.author.id != 1225709819890110604:
             return
-        message = await self.bot.get_channel(1412708336536653886).fetch_message(1412758686241390634)
+        message = await self.bot.get_channel(1312528601253412945).fetch_message(1413137405673869442)
         msg = await ctx.send(message.content)
         for index in roles.keys():
             if isinstance(index, int):  # custom emoji ID
@@ -67,6 +67,33 @@ class RolesCog(commands.Cog):
                     await msg.add_reaction(emoji)
             elif isinstance(index, str):  # unicode emoji
                 await msg.add_reaction(index)
+                
+    @commands.command()
+    async def reorderreactions(self, ctx):
+        msg = await self.bot.get_channel(1312528601253412945).fetch_message(1413137405673869442)
+        for index in roles.keys():
+            if isinstance(index, int):  # custom emoji ID
+                emoji = self.bot.get_emoji(index)
+                if emoji:
+                    await msg.add_reaction(emoji)
+            elif isinstance(index, str):  # unicode emoji
+                await msg.add_reaction(index)
+    
+    @commands.command()
+    async def clearroles(self, ctx):
+        await ctx.message.delete()
+        role_ids = [1362306221281120287, 1362306409789915147, 1313604650372563016, 1336384963767173170, 1313604458143420526, 1336379853829705781]
+        for role_id in role_ids:
+            role = self.bot.get_guild(1279143050496442469).get_role(role_id)
+            if role.name == "Java":
+                pass
+            else:
+                await ctx.send(f"Clearing {role.name} role...")
+            print(role_id)
+            for member in role.members:
+                await member.remove_roles(role)
+                print(member.id)
+        await ctx.send("Finished! You can now get your roles back in <#1412708336536653886>")
         
             
 async def setup(bot):

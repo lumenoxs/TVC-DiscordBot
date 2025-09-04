@@ -17,12 +17,13 @@ def load_questions():
     except FileNotFoundError:
         return {}
 
-def add_question(message_id, question, answer, letter):
+def add_question(message_id, question, answer, letter, rounds):
     trivia_questions = load_questions()
     trivia_questions[str(message_id)] = {
         "question": question,
         "answer": answer,
-        "letter": letter
+        "letter": letter,
+        "rounds": rounds
     }
     with open(trivia_questions_file, "w") as f:
         json.dump(trivia_questions, f, indent=4)
@@ -40,15 +41,17 @@ class QuestionsCog(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def trivia(self, ctx, number: int = 1):
+    async def trivia(self, ctx, rounds: int = 0, round=False):
         try:
             response = requests.get(questions_url)
             response = json.loads(response.text)
             
-            for i in range(number):
-                question = random.choice(response)
+            question = random.choice(response)
+            if round:
+                reply = await ctx.channel.send(f"**Question:** {question['question']}\n**1**: {question['A']}\n**2**: {question['B']}\n**3**: {question['C']}\n**4**: {question['D']}\n*Directly reply (not just comment) with the correct letter (A, B, C, or D) or the full answer.*")
+            else:
                 reply = await ctx.send(f"**Question:** {question['question']}\n**1**: {question['A']}\n**2**: {question['B']}\n**3**: {question['C']}\n**4**: {question['D']}\n*Directly reply (not just comment) with the correct letter (A, B, C, or D) or the full answer.*")
-                add_question(reply.id, question['question'], question[question['answer']], question['answer'])
+            add_question(reply.id, question['question'], question[question['answer']], question['answer'], rounds)
         except Exception as e:
             print(f"Error: {e}")
             
@@ -68,6 +71,16 @@ class QuestionsCog(commands.Cog):
             else:
                 await message.reply(f"Wrong answer! The correct answer was: {trivia_questions[str(message.reference.message_id)]['answer']} ({trivia_questions[str(message.reference.message_id)]['letter']})")
                 remove_question(message.reference.message_id)
+            if trivia_questions[str(message.reference.message_id)]["rounds"] > 1:
+                command = self.bot.get_command('trivia')
+                if trivia_questions[str(message.reference.message_id)]-1 == 1:
+                    aries = "is"
+                    roundies = "round"
+                else:
+                    aries = "are"
+                    roundies = "rounds"
+                msg = await message.channel.send(f"There {aries} {trivia_questions[str(message.reference.message_id)]['rounds']-1} {roundies} left.")
+                await command(msg, trivia_questions[str(message.reference.message_id)]["rounds"]-1, round=True)
 
 async def setup(bot):
     await bot.add_cog(QuestionsCog(bot))

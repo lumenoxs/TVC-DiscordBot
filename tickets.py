@@ -32,6 +32,151 @@ def save_tickets_data(ticket_id, user):
     with open(tickets_file, "w") as f:
         json.dump(data, f, indent=4)
 
+class TicketModel(discord.ui.Modal, title="Tickets"):
+    issue = discord.ui.TextInput(
+        label="Issue",
+        placeholder="Enter your issue here...",
+        style=discord.TextStyle.paragraph
+    )
+
+    def __init__(self, user: discord.User, channel: discord.abc.Messageable, ticket_type: str, bot):
+        super().__init__()
+        self.bot = bot
+        self.user = user
+        self.channel = channel
+        self.ticket_type = ticket_type
+
+    async def on_submit(self, interaction: discord.Interaction):
+        ticket_type = self.ticket_type
+        await interaction.response.defer(ephemeral=True)
+        user = interaction.user
+        data = load_tickets_data()
+        
+        if user.id in data.values():
+            await interaction.followup.send("You already have a ticket open!", ephemeral=True)
+            return
+
+        number_ticket = random.randint(1, 999)
+        thread = await interaction.channel.create_thread(
+            name=f"Ticket - {ticket_type} - {str(number_ticket).zfill(3)}",
+            type=discord.ChannelType.private_thread,
+            invitable=True
+        )
+
+
+        await thread.send(user.mention, delete_after=1)
+
+        # Add staff members
+        role = interaction.guild.get_role(1362668964177772565)
+        if role:
+            await thread.send(role.mention, delete_after=1)
+        
+
+        embed = discord.Embed(
+            description=f"**A {ticket_type} ticket opened by {user.mention}.\nThey entered this issue:\n```{self.issue.value}```**\nSupport will be with you shortly.",
+            color=discord.Color.blue()
+        )
+
+        await thread.send(embed=embed, view=CloseTicket(self.bot))
+        save_tickets_data(thread.id, user.id)
+        await interaction.followup.send(f"✅ Your ticket has been created: {thread.mention}", ephemeral=True)
+        
+
+class PlayerModal(discord.ui.Modal, title="Tickets"):
+    issue = discord.ui.TextInput(
+        label="Issue",
+        placeholder="Enter your issue here...",
+        style=discord.TextStyle.paragraph
+    )
+    player = discord.ui.TextInput(
+        label="Player",
+        placeholder="Enter the player username misbehaving here...",
+        style=discord.TextStyle.short
+    )
+
+    def __init__(self, user: discord.User, channel: discord.abc.Messageable, bot):
+        super().__init__()
+        self.bot = bot
+        self.user = user
+        self.channel = channel
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        user = interaction.user
+        data = load_tickets_data()
+        
+        if user.id in data.values():
+            await interaction.followup.send("You already have a ticket open!", ephemeral=True)
+            return
+
+        number_ticket = random.randint(1, 999)
+        thread = await interaction.channel.create_thread(
+            name=f"Ticket - Player - {str(number_ticket).zfill(3)}",
+            type=discord.ChannelType.private_thread,
+            invitable=True
+        )
+
+
+        await thread.send(user.mention, delete_after=1)
+
+        # Add staff members
+        role = interaction.guild.get_role(1362668964177772565)
+        if role:
+            await thread.send(role.mention, delete_after=1)
+        
+
+        embed = discord.Embed(
+            description=f"**A Player ticket has been opened by {user.mention}.\nThey entered this issue with the player {self.player.value}:\n```{self.issue.value}```**\nSupport will be with you shortly.",
+            color=discord.Color.blue()
+        )
+
+        await thread.send(embed=embed, view=CloseTicket(self.bot))
+        save_tickets_data(thread.id, user.id)
+        await interaction.followup.send(f"✅ Your ticket has been created: {thread.mention}", ephemeral=True)
+
+class AppealModal(discord.ui.Modal, title="Appeal"):
+    mcign = discord.ui.TextInput(label="Minecraft IGN", placeholder="Enter your Minecraft Username/IGN here...", style=discord.TextStyle.short)
+    temppermaban = discord.ui.TextInput(label="Temporary or permanent ban? If its temporary, how long is it?", placeholder="Enter the length of your ban here...", style=discord.TextStyle.long)
+    reasonban = discord.ui.TextInput(label="Reason for ban", placeholder="Enter the reason for your ban here...", style=discord.TextStyle.long)
+    excuse = discord.ui.TextInput(label="Why do you think the ban was injustified/wrong?", placeholder="Enter the reason why you think you shouldn't have been banned here...", style=discord.TextStyle.long)
+
+    def __init__(self, user: discord.User, channel: discord.abc.Messageable, bot):
+        super().__init__()
+        self.bot = bot
+        self.user = user
+        self.channel = channel
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        user = interaction.user
+        data = load_tickets_data()
+        
+        if user.id in data.values():
+            await interaction.followup.send("You already have an ticket/appeal open!", ephemeral=True)
+            return
+
+        thread = await interaction.channel.create_thread(
+            name=f"Ticket - Appeal - {user.name}",
+            type=discord.ChannelType.private_thread,
+            invitable=True
+        )
+
+        await thread.send(user.mention, delete_after=1)
+
+        # Add staff members
+        role = interaction.guild.get_role(1362668964177772565)
+        if role:
+            await thread.send(role.mention, delete_after=1)
+        
+        embed = discord.Embed(
+            description=f"**An appeal has been opened by {user.mention}.**\n\n**They entered the below information:**\n**Their Minecraft IGN:**\n`{self.mcign.value}`\n**The reason for their ban:**\n{self.reasonban.value}\n**If its permanent or temporary and for how long if its temporary:**\n{self.temppermaban.value}\n**Why they believe they shouldn't have been banned:**\n{self.excuse.value}\n\nPlease also @mention any users that are witnesses or related to the ban.",
+            color=discord.Color.blue()
+        )
+
+        await thread.send(embed=embed, view=CloseTicket(self.bot))
+        save_tickets_data(thread.id, user.id)
+        await interaction.followup.send(f"✅ Your appeal has been created: {thread.mention}", ephemeral=True)
+
 class AlertModal(discord.ui.Modal, title="Send Quick Alert"):
     alert = discord.ui.TextInput(
         label="Quick Alert",
@@ -110,80 +255,29 @@ class TicketView(discord.ui.View):
         super().__init__(timeout=None)
         self.bot = bot
 
-    @discord.ui.button(label="Support", custom_id="general_ticket", style=discord.ButtonStyle.secondary, row=0, emoji="❓")
+    @discord.ui.button(label="Support", custom_id="general_ticket", style=discord.ButtonStyle.success, row=0)
     async def support_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.create_ticket(interaction, "Support")
+        await interaction.response.send_modal(TicketModel(user=interaction.user, channel=interaction.channel, ticket_type="Support", bot=self.bot))
 
-    @discord.ui.button(label="Player", custom_id="player_ticket", style=discord.ButtonStyle.secondary, row=0, emoji="👤")
+    @discord.ui.button(label="Player", custom_id="player_ticket", style=discord.ButtonStyle.success, row=0)
     async def player_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.create_ticket(interaction, "Player")
+        await interaction.response.send_modal(PlayerModal(user=interaction.user, channel=interaction.channel, bot=self.bot))
 
-    @discord.ui.button(label="Server", custom_id="server_ticket", style=discord.ButtonStyle.secondary, row=0, emoji="⚙️")
+    @discord.ui.button(label="Server", custom_id="server_ticket", style=discord.ButtonStyle.success, row=0)
     async def server_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.create_ticket(interaction, "Server")
+        await interaction.response.send_modal(TicketModel(user=interaction.user, channel=interaction.channel, ticket_type="Server", bot=self.bot))
 
-    @discord.ui.button(label="Quick Alert", custom_id="quick_alert", style=discord.ButtonStyle.success, row=1, emoji="🚨")
+    @discord.ui.button(label="Quick Alert", custom_id="quick_alert", style=discord.ButtonStyle.success, row=1)
     async def alert_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(AlertModal(user=interaction.user, channel=interaction.channel))
 
-    @discord.ui.button(label="Suggestion", custom_id="suggest_alert", style=discord.ButtonStyle.success, row=1, emoji="💡")
+    @discord.ui.button(label="Suggestion", custom_id="suggest_alert", style=discord.ButtonStyle.success, row=1)
     async def suggest_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(SuggestModal(user=interaction.user, channel=interaction.channel))
 
-    @discord.ui.button(label="Appeal", custom_id="appeal_ticket", style=discord.ButtonStyle.success, row=1, emoji="📩")
+    @discord.ui.button(label="Appeal", custom_id="appeal_ticket", style=discord.ButtonStyle.success, row=1)
     async def appeal_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.create_ticket(interaction, "Appeal")
-
-    async def create_ticket(self, interaction: discord.Interaction, ticket_type: str):
-        await interaction.response.defer(ephemeral=True)
-        user = interaction.user
-        data = load_tickets_data()
-        
-        if user.id in data.values():
-            await interaction.followup.send("You already have a ticket open!", ephemeral=True)
-            return
-
-        if ticket_type == "Appeal":
-            thread = await interaction.channel.create_thread(
-                name=f"Ticket - {ticket_type} - {user.name}",
-                type=discord.ChannelType.private_thread,
-                invitable=False
-            )
-        else:
-            number_ticket = random.randint(1, 999)
-            thread = await interaction.channel.create_thread(
-                name=f"Ticket - {ticket_type} - {str(number_ticket).zfill(3)}",
-                type=discord.ChannelType.private_thread,
-                invitable=False
-            )
-
-
-        await thread.send(user.mention, delete_after=1)
-
-        # Add staff members
-        role = interaction.guild.get_role(1362668964177772565)
-        if role:
-            await thread.send(role.mention, delete_after=1)
-        
-
-        embed = discord.Embed(
-            description=f"**Ticket opened by {user.mention} for `{ticket_type}`.**\nSupport will be with you shortly.",
-            color=discord.Color.blue()
-        )
-        
-        if ticket_type == "Appeal":
-            embed = discord.Embed(
-                description=f"**An appeal has been opened by {user.mention}.**\n\n**Please, provide the below information first:**\n- Your Minecraft IGN\n- The reason for your ban\n- If its permanent or temporary\n- Why you believe you shouldn't have been banned\n\nPlease also @mention any users that are witnesses or related to the ban.",
-                color=discord.Color.blue()
-            )
-
-        await thread.send(embed=embed, view=CloseTicket(self.bot))
-        save_tickets_data(thread.id, user.id)
-        if ticket_type == "Appeal":
-            await interaction.followup.send(f"✅ Your appeal has been created: {thread.mention}", ephemeral=True)
-        else:
-            await interaction.followup.send(f"✅ Your ticket has been created: {thread.mention}", ephemeral=True)
-
+        await interaction.response.send_modal(AppealModal(user=interaction.user, channel=interaction.channel))
 
 class TicketCog(commands.Cog):
     def __init__(self, bot):
@@ -199,7 +293,7 @@ class TicketCog(commands.Cog):
 
         embed = discord.Embed(
             title="Tickets",
-            description="Please choose the most relevant topic below.\n\nSupport - **ONLY FOR ANYTHING NOT LISTED BELOW**\nPlayer - Player related issues - hacking, combat logging\nServer - Anything to do with the hardware - lag, rollback\nQuick alert - Something that doesnt need a conversation, but is urgent\nSuggestion - Any suggestions you may have for the server or discord!\nAppeal - To appeal a discord/minecraft ban/mute\n\nOur team will get back to you shortly.",
+            description="Please choose the most relevant topic below.\n\nSupport - **ONLY FOR ANYTHING NOT LISTED BELOW**\nPlayer - Player related issues - hacking, combat logging\nServer - Anything to do with the server itself - lag, rollback\nQuick alert - Urgent issues that don't need a conversation\nSuggestion - Any suggestions you have for the server or discord :D\nAppeal - Appealing a minecraft ban\n\nOur team will get back to you shortly.",
             color=discord.Color.blue()
         )
 

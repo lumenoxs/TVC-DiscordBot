@@ -82,42 +82,6 @@ trivia_questions_file = "trivia_questions.json"
 trivia_questions = {}
 
 # --------------------------------------------------------------------------
-# @new role
-# --------------------------------------------------------------------------
-
-def load_join_data():
-    with open(join_data_file, "r") as f:
-        return json.load(f)
-
-def save_join_data(data):
-    with open(join_data_file, "w") as f:
-        json.dump(data, f, indent=4)
-
-join_data = load_join_data()
-
-@tasks.loop(minutes=30)
-async def check_new_role():
-    now = datetime.datetime.now()
-    guild = bot.get_guild(1279143050496442469)
-    role = guild.get_role(1376242160042512575)
-    to_remove = []
-
-    for user_id, expiry_str in join_data.items():
-        expiry = datetime.datetime.fromisoformat(expiry_str)
-        if now >= expiry:
-            member = guild.get_member(int(user_id))
-            if member:
-                if role in member.roles:
-                    await member.remove_roles(role)
-                    print(f"Removed expired role from {member.display_name}")
-            to_remove.append(user_id)
-
-    for user_id in to_remove:
-        del join_data[user_id]
-    if to_remove:
-        save_join_data(join_data)
-
-# --------------------------------------------------------------------------
 # News
 # --------------------------------------------------------------------------
 
@@ -263,124 +227,6 @@ def get_data(url):
     except requests.RequestException as e:
         print(f"ERROR: Failed to retrieve data\n{e}")
         return None
-
-# --------------------------------------------------------------------------
-# Welcome channel
-# --------------------------------------------------------------------------
-
-# Boosts
-
-@bot.event
-async def on_member_update(before, after):
-    if before.premium_since is None and after.premium_since is not None:
-        print(f"HYPE HYPE HYPE HYPE\n{after} just boosted the server!")
-        msg = f"# 🎉 DISCORD BOOST! 🎉\n### {after.mention} JUST BOOSTED THE SERVER!!!"
-        channel = bot.get_channel(1279143050496442471)
-        if channel:
-            await channel.send(msg)
-        else:
-            print("boost command channel not found")
-
-# Member join message
-
-@bot.event
-async def on_member_join(member):
-    role_id = 1376242160042512575
-    role = member.guild.get_role(role_id)
-    if role:
-        await member.add_roles(role)
-        print(f"Assigned \'new\' role to {member.display_name}")
-        
-        join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
-        save_join_data(join_data)
-
-    welcome = discord.Embed(
-        title="Welcome to **True Vanilla Network**!",
-        description=(
-            "**Java:**\n"
-            "**IP:** `mc.truevanilla.net`\n"
-            "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
-            "**Bedrock:**\n"
-            "**IP:** `bedrock.truevanilla.net`\n"
-            "**PORT:** `25588`\n"
-            "**Versions:** `1.21.70 - 1.21.93` (the latest version)\n"
-            "For reference, most bedrock launchers automatically update to the latest version\n"
-            "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for info & rules\n**Hacking is not allowed**\n\n"
-        ),
-        color=discord.Color.dark_blue()
-    )
-    welcome.set_footer(text="THIS IS NOT A CRACKED SERVER")
-    message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
-    
-    try:
-        await member.send(embed=welcome)
-    except Exception as err:
-        print(err)
-        message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
-    
-    channel = bot.get_channel(1279361679192231996)
-    if channel:
-        msg_module = await channel.send(message)
-        
-        overfill = msg_module.guild.member_count%50
-        if overfill == 0:
-            await msg_module.pin()
-            await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
-        
-# Member leave message
-
-@bot.event
-async def on_member_remove(member):
-    channel = bot.get_channel(1279361679192231996)
-    if channel:
-        await channel.send(f"User {member.mention} (*{member.display_name}*) left.")
-
-@bot.event
-async def on_message(message):
-    if (message.author.id == 1337890473188003893):
-        return
-    elif (
-        message.channel.id == 1279363971639545896
-        and not message.reference
-        and message.author.id != 1225709819890110604
-    ):
-        url = "http://localhost:11434/api/generate"
-        prompt = (
-            "You are a message classifier for a Discord moderation bot.\n"
-            "Determine if the following message is a HELP REQUEST.\n"
-            "A help request includes: asking to get unbanned, reporting a bug, or asking a question about the server.\n"
-            "If the message is a help request, reply with ONLY: YES\n"
-            "If the message is not a help request (e.g. just chatting or replying), reply with ONLY: NO\n"
-            "Here is the message:\n"
-            f"\"{message.content}\""
-        )
-
-        data = {
-            "model": "llama3.2:latest",
-            "prompt": prompt,
-            "stream": False
-        }
-        
-        response = requests.post(url, json=data)
-
-        if response.status_code == 200:
-            print("MESSAGE!!!")
-            print(response.json()["response"].strip())
-            if response.json()["response"].strip() == "YES":
-                await message.reply(
-                    "Please open a ticket in https://discord.com/channels/1279143050496442469/1338143330286043259 to:\n"
-                    "- Appeal a ban\n"
-                    "- Report bugs\n"
-                    "- Ask for rollback/items due to lag or glitches"
-                )
-        else:
-            print(f"ERROR: {response.status_code}\nMore info:\n{response.text}")
-    elif "tenor.com" in message.content:
-        await message.reply(
-            "Please make sure to send all memes or gifs in <#1405892733129855032>"
-        )
-    await bot.process_commands(message)
-    
 
 # --------------------------------------------------------------------------
 # Server rules
@@ -552,7 +398,7 @@ async def echo(ctx, *, message):
         await ctx.send(message.replace("\\n", "\n").replace("@", "[@]").replace("<", "[<]").replace(">", "[>]"))
 
 async def load_cogs():
-    cogs = ["tickets", "factions", "moderation", "questions", "roles"]
+    cogs = ["tickets", "factions", "moderation", "questions", "roles", "system"]
     
     for cog in cogs:
         try:
@@ -592,7 +438,6 @@ async def on_ready():
     await load_tree()
     
     await schedule_news_loop()
-    check_new_role.start()
 
 # Run the bot
 bot.run(TOKEN)

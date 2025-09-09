@@ -1,14 +1,15 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 import random
 import requests
 import os
 import json
 from dotenv import load_dotenv
-
+import datetime
 
 load_dotenv("secrets.env")
 questions_url = os.getenv("QUESTIONS")
 trivia_questions_file = "trivia_questions.json"
+chat_file = "chat.json"
         
 def load_questions():
     try:
@@ -28,6 +29,14 @@ def add_question(message_id, question, answer, letter, rounds):
     with open(trivia_questions_file, "w") as f:
         json.dump(trivia_questions, f, indent=4)
 
+def load_chat_data():
+    with open(chat_file, "r") as f:
+        return json.load(f)
+
+def save_chat_data(data):
+    with open(chat_file, "w") as f:
+        json.dump(data, f, indent=4)
+
 def remove_question(message_id):
     message_id = str(message_id)
     trivia_questions = load_questions()
@@ -39,6 +48,22 @@ def remove_question(message_id):
 class QuestionsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
+    # @tasks.loop(minutes=30)
+    # async def dead_chat_loop(self):
+    #     now = datetime.datetime.now()
+    #     chat_data = load_chat_data()
+    #     general = self.bot.get_guild(1279143050496442469).get_channel(1279143050496442471)
+    #     last_message_timestamp = general.last_message.created_at
+
+    #     for date in chat_data.items():
+    #         date = datetime.datetime.fromisoformat(date)
+    #         if last_message_timestamp >= now:
+    #             await self.send_question()
+    #             chat_data["next"] = 
+            
+    #     save_chat_data(chat_data)
+        
 
     @commands.command()
     async def trivia(self, ctx, rounds: int = 0, round=False):

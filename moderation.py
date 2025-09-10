@@ -90,45 +90,33 @@ class ModerationCog(commands.Cog):
             msg += f"\nThis is their {ordinal(numStrikes)} strike. No action was taken."
         
         await ctx.send(msg)
-    
-    @commands.Cog.listener()
-    async def on_raw_message_delete(self, plyd):
-        if plyd.cached_message:
-            return
-        channel = self.bot.get_channel(1312528601253412945)
-        dchannel = self.bot.get_channel(plyd.channel_id)
-        await channel.send(f"Message deleted in {dchannel.mention}")
         
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.bot:
+        if message.author.bot or message.author.id == 1225709819890110604:
             return
         channel = self.bot.get_channel(1312528601253412945)
         await channel.send(f"Message by {message.author.name} deleted in {message.channel.mention}:\n```{message.content}```")
     
     @commands.Cog.listener()
     async def on_raw_message_edit(self, plyd):
-        if plyd.cached_message:
+        if plyd.cached_message or plyd.message.author.id == 1225709819890110604:
             return
         channel = self.bot.get_channel(1312528601253412945)
         await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.mention}\nMessage:\n```{plyd.message.content}```")
     
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.author.bot:
+        if message_before.author.bot or message_before.author.id == 1225709819890110604 or message_after.content == message_before.content or message_after.content.startswith("http"):
             return
         channel = self.bot.get_channel(1312528601253412945)
-        if message_after.content == message_before.content:
-            return
-        elif message_after.content.startswith("http"):
-            return
         await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.mention}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
     
     
     @commands.command()
     async def purge(self, ctx, number: int):
+        print(number)
         if self.bot.admin(ctx.author):
-            number = int(number)
             await ctx.channel.purge(limit=number+1)
         
     @commands.command()

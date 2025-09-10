@@ -44,23 +44,22 @@ def get_data(url):
 async def welcome_users(bot):
     stuff = load_users_data()
     members = []
-    for id in bot.get_guild(1279143050496442469).members:
-        id = id.id
-        members.append(id)
+    for mid in bot.get_guild(1279143050496442469).members:
+        mid = mid.id
+        members.append(mid)
         
-    for id in stuff["0"]:
-        if id not in members:
+    for mid in stuff["0"]:
+        if mid not in members:
             # someone left
             channel = bot.get_channel(1279361679192231996)
-            name = get_data("https://discordlookup.mesalytic.moe/v1/user/"+str(id))["global_name"]
-            await channel.send(f"User <@{id}> (*{name}*) left.")
-        
-        stuff["0"].remove(id)
+            name = get_data("https://discordlookup.mesalytic.moe/v1/user/"+str(mid))["global_name"]
+            await channel.send(f"User <@{mid}> (*{name}*) left.")
+            stuff["0"].remove(id)
     
-    for id in members:
-        if id not in stuff["0"]:
+    for mid in members:
+        if mid not in stuff["0"]:
             # someone joined
-            member = bot.get_guild(1279143050496442469).get_member(id)
+            member = bot.get_guild(1279143050496442469).get_member(mid)
             join_data = load_join_data()
             role_id = 1376242160042512575
             role = member.guild.get_role(role_id)
@@ -98,7 +97,7 @@ async def welcome_users(bot):
                 if overfill == 0:
                     await msg_module.pin()
                     await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
-        stuff["0"].append(id)
+            stuff["0"].append(mid)
     
     save_users_data(stuff)
 
@@ -183,7 +182,7 @@ class SystemCog(commands.Cog):
                 await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
         
         stuff = load_users_data()
-        stuff["0"].append(str(id))
+        stuff["0"].append(member.id)
         save_users_data(stuff)
     
     @commands.Cog.listener()
@@ -194,7 +193,7 @@ class SystemCog(commands.Cog):
             await channel.send(f"User {member.mention} (*{member.display_name}*) left.")
         
         stuff = load_users_data()
-        stuff["0"].remove(str(id))
+        stuff["0"].remove(member.id)
         save_users_data(stuff)
 
     @commands.Cog.listener()
@@ -205,18 +204,6 @@ class SystemCog(commands.Cog):
             await message.reply(
                 "Please make sure to send all memes or gifs in <#1405892733129855032>"
             )
-        await self.bot.process_commands(message)
-
-    # @commands.command()
-    # async def setup_users(self, ctx):
-    #     stuff = load_users_data()
-    #     stuff["0"] = []
-    #     for id in self.bot.get_guild(1279143050496442469).members:
-    #         id = id.id
-    #         stuff["0"].append(id)
-    #         print(id)
-    #     save_users_data(stuff)
         
 async def setup(bot):
     await bot.add_cog(SystemCog(bot))
-    await welcome_users(bot)

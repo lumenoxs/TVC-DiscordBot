@@ -1,10 +1,10 @@
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks  # noqa: F401
 import random
 import requests
 import os
 import json
 from dotenv import load_dotenv
-import datetime
+import datetime  # noqa: F401
 
 load_dotenv("secrets.env")
 questions_url = os.getenv("QUESTIONS")

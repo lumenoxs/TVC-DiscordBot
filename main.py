@@ -315,7 +315,7 @@ async def rules(ctx):
         embeds.append(embed)
     channel = bot.get_channel(1279147286286307419)
     if admin(ctx.author):
-        await channel.purge(limit=100)
+        await channel.purge(limit=10)
         for embed in embeds:
             await channel.send(embed=embed)
 
@@ -387,7 +387,7 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
 
     await channel.send(content=content, view=view)
     await interaction.response.send_message(f"Your request to link Minecraft account '{ign}' has been sent.")
-
+    
 # --------------------------------------------------------------------------
 # Start the bot
 # --------------------------------------------------------------------------

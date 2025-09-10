@@ -34,8 +34,8 @@ You can not log out of an ongoing fight. You may also not use anchors or crystal
 ### **Illegal items**:
 Being found using or possessing illegal items will result in an inventory wipe + 3 day ban.
 # World Age
-## *We no longer do seasons on the applecore gameworld. However, windfall has resets.*
-### **Applecore Gameworld**:
+## *We no longer do seasons on the core world. However, windfall has resets.*
+### **Core world**:
 https://discord.com/channels/1279143050496442469/1312528881529524224/1388187230618652682 - <t:1751040000:R> - <t:1751040000:D>
 # Further info on the rules
 ## 

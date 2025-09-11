@@ -1,6 +1,4 @@
 React to this message to give yourself server-wide roles
-- <:java:1362484007714951349> <@&1362306221281120287>.To be notified for java specific announcements
-- <:bedrockblock:1387837470300835900> <@&1362306409789915147>. To be notified for bedrock specific announcements
 - 📢 <@&1336384963767173170>.To be notified to important announcements in ⁠<#1312528881529524224>
 - ⚙️ <@&1336379853829705781>. To be notified to large changes in <#1336386230719615016>
 - 📊 <@&1313604458143420526>. To be notified to questions in ⁠<#1412716564775567491>

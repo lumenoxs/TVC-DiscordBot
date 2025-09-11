@@ -5,13 +5,8 @@ import discord
 import requests
 
 users_file = "users.json"
-
-# @commands.command()
-# async def echo(ctx, *args):
-#     if admin(ctx.author):
-#         await ctx.send(args)
-#         print(args)
 join_data_file = "join_roles.json"
+hi_file = "hi_data.json"
 
 def load_users_data():
     with open(users_file, "r") as f:
@@ -20,7 +15,20 @@ def load_users_data():
 def save_users_data(data):
     with open(users_file, "w") as f:
         json.dump(data, f, indent=4)
+        
+def load_hi_data():
+    with open(hi_file, "r") as f:
+        return json.load(f)
 
+def save_hi_data(data):
+    with open(hi_file, "w") as f:
+        json.dump(data, f, indent=4)
+
+def add_hi(hi):
+    data = load_hi_data()
+    data["0"].append(hi)
+    save_hi_data(data)
+    
 def load_join_data():
     with open(join_data_file, "r") as f:
         return json.load(f)
@@ -198,12 +206,18 @@ class SystemCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        new_role = self.bot.get_guild(1279143050496442469).get_role(1376242160042512575)
+        ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
         if (message.author.id == 1337890473188003893):
             return
         elif "tenor.com" in message.content:
-            await message.reply(
-                "Please make sure to send all memes or gifs in <#1405892733129855032>"
-            )
+            await message.reply("Please make sure to send all memes or gifs in <#1405892733129855032>")
+        elif "hi" in message.content or "hello" in message.content:
+            if new_role in message.author.roles and message.author.id not in load_hi_data()["0"]:
+                await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
+                add_hi(message.author.id)
+        elif any(kyw in message.content for kyw in ip_kyws) and new_role in message.author.roles:
+            await message.reply("Hi there! Check <#1375185161980739797> for info on how to join.")
         
 async def setup(bot):
     await bot.add_cog(SystemCog(bot))

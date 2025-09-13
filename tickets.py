@@ -210,7 +210,7 @@ class AlertModal(discord.ui.Modal, title="Send Quick Alert"):
 class SuggestModal(discord.ui.Modal, title="Suggestions"):
     alert = discord.ui.TextInput(
         label="Suggestion",
-        placeholder="Type your suggestion here...",
+        placeholder="Enter your suggestion here...",
         style=discord.TextStyle.paragraph
     )
 
@@ -223,6 +223,54 @@ class SuggestModal(discord.ui.Modal, title="Suggestions"):
         content = self.alert.value
         embed = discord.Embed(
             title=f"💡 Suggestion from {self.user.display_name}:",
+            description=content,
+            color=discord.Color.blue()
+        )
+        async with aiohttp.ClientSession() as session:
+            webhook = discord.Webhook.from_url(alerts_webhook, session=session)
+            await webhook.send(embed=embed)
+        await interaction.response.send_message("✅ Suggestion sent!", ephemeral=True)
+
+class QuestionReplyModal(discord.ui.Modal, title="Reply"):
+    alert = discord.ui.TextInput(
+        label="Reply",
+        placeholder="Enter your reply here...",
+        style=discord.TextStyle.paragraph
+    )
+
+    def __init__(self, user: discord.User, message: int):
+        super().__init__()
+        self.user = user
+        self.message = message
+
+    async def on_submit(self, interaction: discord.Interaction):
+        content = self.alert.value
+        embed = discord.Embed(
+            title="Response:",
+            description=content,
+            color=discord.Color.blue()
+        )
+        async with aiohttp.ClientSession() as session:
+            webhook = discord.Webhook.from_url(alerts_webhook, session=session)
+            await webhook.send(embed=embed)
+        await interaction.response.send_message("✅ Suggestion sent!", ephemeral=True)
+
+class QuestionModal(discord.ui.Modal, title="Questions"):
+    alert = discord.ui.TextInput(
+        label="Question",
+        placeholder="Enter your question here... (this will be anonymous)",
+        style=discord.TextStyle.paragraph
+    )
+
+    def __init__(self, user: discord.User, channel: discord.abc.Messageable):
+        super().__init__()
+        self.user = user
+        self.channel = channel
+
+    async def on_submit(self, interaction: discord.Interaction):
+        content = self.alert.value
+        embed = discord.Embed(
+            title="❓ Question:",
             description=content,
             color=discord.Color.blue()
         )

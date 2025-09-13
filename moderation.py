@@ -103,15 +103,21 @@ class ModerationCog(commands.Cog):
         if plyd.cached_message or plyd.message.author.id == 1225709819890110604:
             return
         channel = self.bot.get_channel(1312528601253412945)
-        await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.mention}\nMessage:\n```{plyd.message.content}```")
+        try:
+            await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.mention}\nMessage:\n```{plyd.message.content}```")
+        except Exception:
+            await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.id}\nMessage:\n```{plyd.message.content}```")
+            
     
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
         if message_before.author.bot or message_before.author.id == 1225709819890110604 or message_after.content == message_before.content or message_after.content.startswith("http"):
             return
         channel = self.bot.get_channel(1312528601253412945)
-        await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.mention}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
-    
+        try:
+            await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.mention}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
+        except Exception:
+            await channel.send(f"Message by {message_after.author.name} edited in {message_after.channel.id}\nOld message:\n```{message_before.content}```\nNew message:\n```{message_after.content}```")
     
     @commands.command()
     async def purge(self, ctx, number: int):

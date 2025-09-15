@@ -93,14 +93,14 @@ class ModerationCog(commands.Cog):
         
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.bot or message.author.id == 1225709819890110604:
+        if message.author.bot or message.author.id == 1225709819890110604 or message.content == "":
             return
         channel = self.bot.get_channel(1312528601253412945)
         await channel.send(f"Message by {message.author.name} deleted in {message.channel.mention}:\n```{message.content}```")
     
     @commands.Cog.listener()
     async def on_raw_message_edit(self, plyd):
-        if plyd.cached_message or plyd.message.author.id == 1225709819890110604:
+        if plyd.cached_message or plyd.message.author.id == 1225709819890110604 or plyd.message.content == "":
             return
         channel = self.bot.get_channel(1312528601253412945)
         try:
@@ -111,7 +111,7 @@ class ModerationCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.author.bot or message_before.author.id == 1225709819890110604 or message_after.content == message_before.content or message_after.content.startswith("http"):
+        if message_before.author.bot or message_before.author.id == 1225709819890110604 or message_after.content == message_before.content or message_after.content.startswith("http") or message_after == "" or message_before == "":
             return
         channel = self.bot.get_channel(1312528601253412945)
         try:

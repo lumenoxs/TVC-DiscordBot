@@ -136,9 +136,9 @@ class PlayerModal(discord.ui.Modal, title="Tickets"):
 
 class AppealModal(discord.ui.Modal, title="Appeal"):
     mcign = discord.ui.TextInput(label="Minecraft IGN", placeholder="Enter your Minecraft Username/IGN here...", style=discord.TextStyle.short)
-    temppermaban = discord.ui.TextInput(label="Temporary or permanent ban? If its temporary, how long is it?", placeholder="Enter the length of your ban here...", style=discord.TextStyle.long)
-    reasonban = discord.ui.TextInput(label="Reason for ban", placeholder="Enter the reason for your ban here...", style=discord.TextStyle.long)
-    excuse = discord.ui.TextInput(label="Why do you think the ban was injustified/wrong?", placeholder="Enter the reason why you think you shouldn't have been banned here...", style=discord.TextStyle.long)
+    temppermaban = discord.ui.TextInput(label="Temporary or permanent ban?", placeholder="Enter the type of your ban here...", style=discord.TextStyle.short)
+    reasonban = discord.ui.TextInput(label="Reason for ban", placeholder="Enter the reason for your ban here...", style=discord.TextStyle.short)
+    excuse = discord.ui.TextInput(label="Why do you think the ban was injustified?", placeholder="Enter the reason why you think you shouldn't have been banned here...", style=discord.TextStyle.long)
 
     def __init__(self, user: discord.User, channel: discord.abc.Messageable, bot):
         super().__init__()
@@ -325,7 +325,7 @@ class TicketView(discord.ui.View):
 
     @discord.ui.button(label="Appeal", custom_id="appeal_ticket", style=discord.ButtonStyle.success, row=1)
     async def appeal_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(AppealModal(user=interaction.user, channel=interaction.channel))
+        await interaction.response.send_modal(AppealModal(user=interaction.user, channel=interaction.channel, bot=self.bot))
 
 class TicketCog(commands.Cog):
     def __init__(self, bot):

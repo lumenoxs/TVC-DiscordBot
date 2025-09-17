@@ -102,6 +102,7 @@ class ModerationCog(commands.Cog):
     async def on_raw_message_edit(self, plyd):
         if plyd.cached_message or plyd.message.author.id == 1225709819890110604 or plyd.message.content == "":
             return
+        print(plyd.message.content)
         channel = self.bot.get_channel(1312528601253412945)
         try:
             await channel.send(f"Message by {plyd.message.author.name} edited in {plyd.message.channel.mention}\nMessage:\n```{plyd.message.content}```")

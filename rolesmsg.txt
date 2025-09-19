@@ -1,9 +1,0 @@
-React to this message to give yourself server-wide roles
-- 📢 <@&1336384963767173170>.To be notified to important announcements in ⁠<#1312528881529524224>
-- ⚙️ <@&1336379853829705781>. To be notified to large changes in <#1336386230719615016>
-- 📊 <@&1313604458143420526>. To be notified to questions in ⁠<#1412716564775567491>
-- 🚨 <@&1313604650372563016>.To be notified to changes that will directly impact you (version updates, server down etc.) in ⁠<#1405832657899753493>
-- 🍎 <@&1412722373777428500>. To be notified for important announcements in ⁠<#1412436068090777611>
-- 🍃 <@&1412722480593899622>. To be notified for important announcements in <#1412436567351496706>
-
-To get <@&1382988826200248330>, run /verify in ⁠<#1328017848143974524>

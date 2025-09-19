@@ -210,9 +210,9 @@ class SystemCog(commands.Cog):
         ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
         if (message.author.id == 1337890473188003893):
             return
-        elif "tenor.com" in message.content:
+        elif "tenor.com" in message.content and message.channel.id != 1405892733129855032:
             await message.reply("Please make sure to send all memes or gifs in <#1405892733129855032>")
-        elif "hi" in message.content or "hello" in message.content:
+        elif "hi" in message.content.lower() or "hello" in message.content.lower():
             if new_role in message.author.roles and message.author.id not in load_hi_data()["0"]:
                 await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
                 add_hi(message.author.id)

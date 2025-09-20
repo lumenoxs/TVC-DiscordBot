@@ -1,4 +1,6 @@
 from discord.ext import commands
+from requests import get as rget
+from discord import app_commands
 import discord
 
 channels = {}
@@ -13,6 +15,7 @@ channels["alerts"] = 1312528601253412945
 
 class CommandsCog(commands.Cog):
     def __init__(self, bot):
+        global tree
         self.bot = bot
 
     @commands.command()
@@ -28,7 +31,7 @@ class CommandsCog(commands.Cog):
                 await ctx.message.delete()
             except discord.Forbidden:
                 pass
-            await ctx.send(f"Please use all commands in <#{channels["bot"]}>.", delete_after=3)
+            await ctx.send(f"Please use all commands in <#{channels['bot']}>.", delete_after=3)
             return
         member_count = ctx.guild.member_count
         embed = discord.Embed(
@@ -47,6 +50,17 @@ class CommandsCog(commands.Cog):
             await ctx.send("An error occurred while processing the command.")
             await self.bot.get_channel(channels["alerts"]).send(f"Error occurred: {str(error)}")
             raise error
+        
+    @app_commands.command(name="xkcd", description="Get a random comic from xkcd.com")
+    async def xkcd(self, ctx):
+        r = rget("https://c.xkcd.com/random/comic/")
+        for i in r.text.split("\n"):
+            if i.startswith("<meta property=\"og:image\" content=\""):
+                r = i.strip("<meta property=\"og:image\" content=\"").strip("\">")
+                break
+                
+        await ctx.reply(r)
 
-def setup(bot):
-    commands.add_cog(CommandsCog(bot))
+
+async def setup(bot):
+    await bot.add_cog(CommandsCog(bot))

@@ -218,6 +218,8 @@ class SystemCog(commands.Cog):
                 add_hi(message.author.id)
         elif any(kyw in message.content for kyw in ip_kyws) and new_role in message.author.roles:
             await message.reply("Hi there! Check <#1375185161980739797> for info on how to join.")
+        elif "67" in message.content:
+            await message.reply("# no brainrot")
         
 async def setup(bot):
     await bot.add_cog(SystemCog(bot))

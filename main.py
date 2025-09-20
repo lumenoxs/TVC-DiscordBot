@@ -20,7 +20,6 @@ intents.guilds = True
 intents.members = True
 
 client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
 
 bot = commands.Bot(command_prefix=["!", "-"], intents=intents)
 
@@ -319,7 +318,7 @@ async def rules(ctx):
         for embed in embeds:
             await channel.send(embed=embed)
 
-@tree.command(name="verify", description="Verify your discord account")
+@bot.tree.command(name="verify", description="Verify your discord account")
 @app_commands.describe(ign="Your Minecraft IGN/In Game Name/Username")
 async def minecraft_user(interaction: discord.Interaction, ign: str):
     channel_id = 1312528601253412945
@@ -398,7 +397,7 @@ async def echo(ctx, *, message):
         await ctx.send(message.replace("\\n", "\n").replace("@", "[@]").replace("<", "[<]").replace(">", "[>]"))
 
 async def load_cogs():
-    cogs = ["tickets", "factions", "moderation", "questions", "roles", "system"]
+    cogs = ["tickets", "factions", "moderation", "questions", "roles", "system", "commands"]
     
     for cog in cogs:
         try:
@@ -429,8 +428,11 @@ async def on_ready():
     global guild
     print(f'Logged in as {bot.user}')
     
-    bot.tree.add_command(minecraft_user)
-
+    try:
+        bot.tree.add_command(minecraft_user)
+    except Exception as e:
+        print(f"Failed to load /verify: {e}")
+    
     guild = bot.get_guild(1279143050496442469)
     
     await load_cogs()

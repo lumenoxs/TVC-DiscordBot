@@ -1,6 +1,4 @@
 from discord.ext import commands
-from requests import get as rget
-from discord import app_commands
 import discord
 
 channels = {}
@@ -14,10 +12,6 @@ channels["dank"] = 0
 channels["alerts"] = 1312528601253412945
 
 class CommandsCog(commands.Cog):
-    def __init__(self, bot):
-        global tree
-        self.bot = bot
-
     @commands.command()
     async def ping(self, ctx):
         await ctx.send("🏓 Pong!")
@@ -51,15 +45,8 @@ class CommandsCog(commands.Cog):
             await self.bot.get_channel(channels["alerts"]).send(f"Error occurred: {str(error)}")
             raise error
         
-    @app_commands.command(name="xkcd", description="Get a random comic from xkcd.com")
-    async def xkcd(self, ctx):
-        r = rget("https://c.xkcd.com/random/comic/")
-        for i in r.text.split("\n"):
-            if i.startswith("<meta property=\"og:image\" content=\""):
-                r = i.strip("<meta property=\"og:image\" content=\"").strip("\">")
-                break
-                
-        await ctx.reply(r)
+    def __init__(self, bot):
+        self.bot = bot
 
 
 async def setup(bot):

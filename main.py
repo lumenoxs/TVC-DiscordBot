@@ -9,6 +9,7 @@ import datetime
 from dotenv import load_dotenv
 from tickets import TicketView, CloseTicket
 from factions import FactionFloodCheckView
+from requests import get as rget
     
 # --------------------------------------------------------------------------
 # Discord shenanigans
@@ -317,7 +318,17 @@ async def rules(ctx):
         await channel.purge(limit=10)
         for embed in embeds:
             await channel.send(embed=embed)
-
+        
+@bot.tree.command(name="xkcd", description="Get a random comic from xkcd.com")
+async def xkcd(interaction: discord.Interaction):
+    r = rget("https://c.xkcd.com/random/comic/")
+    for i in r.text.split("\n"):
+        if i.startswith("<meta property=\"og:image\" content=\""):
+            r = i.strip("<meta property=\"og:image\" content=\"").strip("\">")
+            break
+            
+    await interaction.response.send_message(r)
+    
 @bot.tree.command(name="verify", description="Verify your discord account")
 @app_commands.describe(ign="Your Minecraft IGN/In Game Name/Username")
 async def minecraft_user(interaction: discord.Interaction, ign: str):
@@ -432,6 +443,11 @@ async def on_ready():
         bot.tree.add_command(minecraft_user)
     except Exception as e:
         print(f"Failed to load /verify: {e}")
+    
+    try:
+        bot.tree.add_command(xkcd)
+    except Exception as e:
+        print(f"Failed to load /xkcd: {e}")
     
     guild = bot.get_guild(1279143050496442469)
     

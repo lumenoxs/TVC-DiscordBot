@@ -37,82 +37,90 @@ def save_join_data(data):
     with open(join_data_file, "w") as f:
         json.dump(data, f, indent=4)
 
-def get_data(url):
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"ERROR: Received status code {response.status_code}")
-            return None
-    except requests.RequestException as e:
-        print(f"ERROR: Failed to retrieve data\n{e}")
-        return None
-
-async def welcome_users(bot):
-    stuff = load_users_data()
-    members = []
-    for mid in bot.get_guild(1279143050496442469).members:
-        mid = mid.id
-        members.append(mid)
-        
-    for mid in stuff["0"]:
-        if mid not in members:
-            # someone left
-            channel = bot.get_channel(1279361679192231996)
-            name = get_data("https://discordlookup.mesalytic.moe/v1/user/"+str(mid))["global_name"]
-            await channel.send(f"User <@{mid}> (*{name}*) left.")
-            stuff["0"].remove(id)
-    
-    for mid in members:
-        if mid not in stuff["0"]:
-            # someone joined
-            member = bot.get_guild(1279143050496442469).get_member(mid)
-            join_data = load_join_data()
-            role_id = 1376242160042512575
-            role = member.guild.get_role(role_id)
-            if role:
-                await member.add_roles(role)
-                print(f"Assigned \'new\' role to {member.display_name}")
-                
-                join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
-                save_join_data(join_data)
-
-            welcome = discord.Embed(
-                title="Welcome to **True Vanilla Network**!",
-                description=(
-                    "**Java:**\n"
-                    "**IP:** `mc.truevanilla.net`\n"
-                    "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
-                    "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for rules\n\n"
-                ),
-                color=discord.Color.dark_blue()
-            )
-            welcome.set_footer(text="THIS IS NOT A CRACKED SERVER\nHACKING IS NOT ALLOWED\nWE DO NOT SUPPORT BEDROCK")
-            message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
-            
-            try:
-                await member.send(embed=welcome)
-            except Exception as err:
-                print(err)
-                message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
-            
-            channel = bot.get_channel(1279361679192231996)
-            if channel:
-                msg_module = await channel.send(message)
-                
-                overfill = msg_module.guild.member_count%50
-                if overfill == 0:
-                    await msg_module.pin()
-                    await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
-            stuff["0"].append(mid)
-    
-    save_users_data(stuff)
-
 class SystemCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.check_new_role.start()
+
+    @commands.command()
+    async def welcome_users(self, ctx):
+        if ctx.author.guild_permissions.administrator == False: return
+        users_data = load_users_data()
+        members = []
+        for user_id in self.bot.get_guild(1279143050496442469).members:
+            print("1")
+            user_id = user_id.id
+            members.append(user_id)
+            
+        for user_id in users_data["0"]:
+            print("2-1")
+            if user_id not in members:
+                print("2-2")
+                # someone left
+                # channel = bot.get_channel(1279361679192231996)
+                name = await self.bot.fetch_user(user_id)
+                print(f"User {name} (*{user_id}*) left.")
+                # await channel.send(f"User <@{user_id}> (*{name}*) left.")
+                # users_data["0"].remove(user_id)
+        
+        for user_id in members:
+            print("3-1")
+            if user_id not in users_data["0"]:
+                print("3-2")
+                # someone joined
+                # member = bot.get_guild(1279143050496442469).get_member(user_id)
+                # join_data = load_join_data()
+                # role_id = 1376242160042512575
+                # role = member.guild.get_role(role_id)
+                # if role:
+                #     await member.add_roles(role)
+                #     print(f"Assigned \'new\' role to {member.display_name}")
+                    
+                #     join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
+                #     save_join_data(join_data)
+
+                # welcome = discord.Embed(
+                #     title="Welcome to **True Vanilla Network**!",
+                #     description=(
+                #         "**Java:**\n"
+                #         "**IP:** `mc.truevanilla.net`\n"
+                #         "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
+                #         "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for rules\n\n"
+                #     ),
+                #     color=discord.Color.dark_blue()
+                # )
+                # welcome.set_footer(text="THIS IS NOT A CRACKED SERVER\nHACKING IS NOT ALLOWED\nWE DO NOT SUPPORT BEDROCK")
+                # message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
+                
+                # try:
+                #     await member.send(embed=welcome)
+                # except Exception as err:
+                #     print(err)
+                #     message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
+                
+                # channel = bot.get_channel(1279361679192231996)
+                # if channel:
+                #     msg_module = await channel.send(message)
+                    
+                #     overfill = msg_module.guild.member_count%50
+                #     if overfill == 0:
+                #         await msg_module.pin()
+                #         await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
+                # users_data["0"].append(user_id)
+                name = await self.bot.fetch_user(user_id)
+                print(f"User {name} (*{user_id}*) joined.")
+        
+        save_users_data(users_data)
+        await ctx.send("Welcomed users.")
+
+    @commands.command()
+    async def resync_users(self, ctx):
+        save_users_data({"0": []})
+        for member in self.bot.get_guild(1279143050496442469).members:
+            stuff = load_users_data()
+            stuff["0"].append(member.id)
+        save_users_data(stuff)
+        await ctx.send("Resynced users.")
 
     @tasks.loop(minutes=30)
     async def check_new_role(self):

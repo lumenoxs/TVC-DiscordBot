@@ -215,13 +215,13 @@ class SystemCog(commands.Cog):
             return
         elif "tenor.com" in message.content and message.channel.id != 1405892733129855032:
             await message.reply("Please make sure to send all memes or gifs in <#1405892733129855032>")
-        elif any(kyw in message.content for kyw in hi_kwys):
+        elif any(kyw in message.content.lower() for kyw in hi_kwys):
             if new_role in message.author.roles and message.author.id not in load_hi_data()["0"]:
                 await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
                 add_hi(message.author.id)
             elif message.author.id == 1047608245172326530:
                 await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
-        elif any(kyw in message.content for kyw in ip_kyws) and new_role in message.author.roles:
+        elif any(kyw in message.content.lower() for kyw in ip_kyws) and new_role in message.author.roles:
             await message.reply("Hi there! Check <#1375185161980739797> for info on how to join.")
         
 async def setup(bot):

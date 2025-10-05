@@ -35,6 +35,21 @@ class CommandsCog(commands.Cog):
         )
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def get_message(self, ctx, message_id: int):
+        if ctx.author.guild_permissions.administrator == False:
+            await ctx.send("You do not have permission to use this command.")
+            return
+        try:
+            message = await ctx.channel.fetch_message(message_id)
+            await ctx.send(f"Message content: {message.content}")
+        except discord.NotFound:
+            await ctx.send("Message not found.")
+        except discord.Forbidden:
+            await ctx.send("I do not have permission to fetch messages.")
+        except discord.HTTPException as e:
+            await ctx.send(f"An error occurred: {e}")
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, discord.ext.commands.errors.CommandNotFound):

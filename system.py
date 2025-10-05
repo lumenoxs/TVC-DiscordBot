@@ -210,14 +210,17 @@ class SystemCog(commands.Cog):
     async def on_message(self, message):
         new_role = self.bot.get_guild(1279143050496442469).get_role(1376242160042512575)
         ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
-        if (message.author.id == 1337890473188003893):
+        hi_kwys = ["hi", "hello", "hey", "sup", "yo", "good morning", "good afternoon", "good evening", "greetings", "howdy"]
+        if message.author.bot:
             return
         elif "tenor.com" in message.content and message.channel.id != 1405892733129855032:
             await message.reply("Please make sure to send all memes or gifs in <#1405892733129855032>")
-        elif "hi" in message.content.lower() or "hello" in message.content.lower():
+        elif any(kyw in message.content for kyw in hi_kwys):
             if new_role in message.author.roles and message.author.id not in load_hi_data()["0"]:
                 await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
                 add_hi(message.author.id)
+            elif message.author.id == 1047608245172326530:
+                await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
         elif any(kyw in message.content for kyw in ip_kyws) and new_role in message.author.roles:
             await message.reply("Hi there! Check <#1375185161980739797> for info on how to join.")
         

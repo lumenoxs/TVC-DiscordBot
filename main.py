@@ -318,7 +318,42 @@ async def rules(ctx):
         await channel.purge(limit=10)
         for embed in embeds:
             await channel.send(embed=embed)
-        
+
+@bot.command()
+async def core_info(ctx):
+    await ctx.message.delete()
+
+    filename = 'core.txt'
+    articles = process_rules_file(filename)
+    embeds = []
+
+    for article in articles:
+        embed = create_embed_from_article(article)
+        embeds.append(embed)
+    channel = bot.get_channel(1412435981205770240)
+    if admin(ctx.author):
+        await channel.purge(limit=10)
+        for embed in embeds:
+            await channel.send(embed=embed)
+
+
+@bot.command()
+async def windfall_info(ctx):
+    await ctx.message.delete()
+
+    filename = 'windfall.txt'
+    articles = process_rules_file(filename)
+    embeds = []
+
+    for article in articles:
+        embed = create_embed_from_article(article)
+        embeds.append(embed)
+    channel = bot.get_channel(1412436014223331359)
+    if admin(ctx.author):
+        await channel.purge(limit=10)
+        for embed in embeds:
+            await channel.send(embed=embed)
+
 @bot.tree.command(name="xkcd", description="Get a random comic from xkcd.com")
 async def xkcd(interaction: discord.Interaction):
     r = rget("https://c.xkcd.com/random/comic/")

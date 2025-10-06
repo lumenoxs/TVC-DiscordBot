@@ -41,6 +41,7 @@ class SystemCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.check_new_role.start()
+        self.bump_reminder.start()
 
     @commands.command()
     async def welcome_users(self, ctx):
@@ -195,6 +196,17 @@ class SystemCog(commands.Cog):
         stuff["0"].append(member.id)
         save_users_data(stuff)
     
+    @tasks.loop(minutes=1)
+    async def bump_reminder(self):
+        channel = self.bot.get_channel(1328017848143974524)
+        with open("bump_data.txt", "r") as f:
+            data = f.read().split(":::")
+            last_bump = datetime.datetime.fromisoformat(data[1].strip())
+            user = await self.bot.fetch_user(int(data[0].strip()))
+            now = datetime.datetime.utcnow()
+            if (now - last_bump).total_seconds() > 2:
+                await channel.send(f"Hey {user.mention}! It's been two hours since you last bumped, so you can bump the server again! Please consider bumping the server using `/bump`!")
+
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         print(member.id)
@@ -211,7 +223,12 @@ class SystemCog(commands.Cog):
         new_role = self.bot.get_guild(1279143050496442469).get_role(1376242160042512575)
         ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
         hi_kwys = ["hi", "hello", "hey", "sup", "yo", "good morning", "good afternoon", "good evening", "greetings", "howdy"]
-        if message.author.bot:
+        if message.channel.id == 1328017848143974524 and message.interaction_metadata and message.author.id == 302050872383242240:
+            await message.reply("Thanks for bumping our server! You rock! :D")
+            await message.add_reaction("🎉")
+            with open("bump_data.txt", "w") as f:
+                f.write(f"{message.interaction_metadata.user.id}:::{datetime.datetime.utcnow().isoformat()}\n")
+        elif message.author.bot:
             return
         elif "tenor.com" in message.content and message.channel.id != 1405892733129855032:
             await message.reply("Please make sure to send all memes or gifs in <#1405892733129855032>")
@@ -220,7 +237,7 @@ class SystemCog(commands.Cog):
                 await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
                 add_hi(message.author.id)
             elif message.author.id == 1047608245172326530:
-                await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.")
+                await message.reply("Hi there, and welcome to True Vanilla Community!\nCheck <#1375185161980739797> on how to join, and get your roles in <#1412708336536653886>.\n-# this was purposefully asked by stunslams, this is not a bug\n-# if you wanted this removed stunslams, just dm me ok")
         elif any(kyw in message.content.lower() for kyw in ip_kyws) and new_role in message.author.roles:
             await message.reply("Hi there! Check <#1375185161980739797> for info on how to join.")
         

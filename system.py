@@ -200,15 +200,15 @@ class SystemCog(commands.Cog):
     async def bump_reminder(self):
         channel = self.bot.get_channel(1328017848143974524)
         with open("bump_data.txt", "r") as f:
-            print("1")
             data = f.read().split(":::")
-            print(data)
+            if data == ["0", "0"]: return
             last_bump = datetime.datetime.fromisoformat(data[1].strip())
             user = await self.bot.fetch_user(int(data[0].strip()))
             now = datetime.datetime.utcnow()
             if (now - last_bump).total_seconds() > 2*60*60:
-                print("2")
                 await channel.send(f"Hey {user.mention}! It's been two hours since you last bumped, so you can bump the server again! Please consider bumping the server using `/bump`!")
+                with open("bump_data.txt", "w") as f:
+                    f.write("0:::0")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -227,13 +227,10 @@ class SystemCog(commands.Cog):
         ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
         hi_kwys = ["hi", "hello", "hey", "sup", "yo", "good morning", "good afternoon", "good evening", "greetings", "howdy"]
         if message.channel.id == 1328017848143974524 and message.interaction_metadata and message.author.id == 302050872383242240:
-            if True:
-                print(json.load(message.interaction_metadata))
-                print(json.load(message.interaction))
-            await message.reply("Thanks for bumping our server! You rock! :D")
+            await message.reply(f"Thanks for bumping our server, {message.interaction_metadata.user.display_name}! You rock! :D")
             await message.add_reaction("🎉")
             with open("bump_data.txt", "w") as f:
-                f.write(f"{message.interaction_metadata.user.id}:::{datetime.datetime.utcnow().isoformat()}\n")
+                f.write(f"{message.interaction_metadata.user.id}:::{datetime.datetime.utcnow().isoformat()}")
         elif message.author.bot:
             return
         elif "tenor.com" in message.content and message.channel.id != 1405892733129855032:

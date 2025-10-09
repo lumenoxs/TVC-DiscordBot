@@ -53,9 +53,9 @@ async def get_top_tip():
     return tip
 
 class NewsCog(commands.Cog):
-    async def __init__(self, bot):
+    def __init__(self, bot):
         self.bot = bot
-        await self.schedule_news_loop()
+        self.schedule_news_loop()
 
     @tasks.loop(hours=24)
     async def send_news(self):

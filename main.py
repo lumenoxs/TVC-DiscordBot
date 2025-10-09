@@ -369,10 +369,6 @@ async def xkcd(interaction: discord.Interaction):
 async def minecraft_user(interaction: discord.Interaction, ign: str):
     channel_id = 1312528601253412945
     channel = bot.get_channel(channel_id)
-
-    if channel is None:
-        await interaction.response.send_message("Error: Channel not found.", ephemeral=True)
-        return
     
     content = f"User {interaction.user.mention} wants to link their Minecraft account: **{ign}**"
 
@@ -403,10 +399,7 @@ async def minecraft_user(interaction: discord.Interaction, ign: str):
 
             role_id = 1382988826200248330
             role = member.guild.get_role(role_id)
-            if role:
-                await member.add_roles(role)
-            else:
-                print("Error: \'Linked\' role not found")
+            await member.add_roles(role)
             
             await member.edit(nick=new_nick)
             await button_interaction.response.send_message(f"Nickname changed to: {new_nick}")

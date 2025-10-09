@@ -68,8 +68,7 @@ class TicketModel(discord.ui.Modal, title="Tickets"):
 
         # Add staff members
         role = interaction.guild.get_role(1362668964177772565)
-        if role:
-            await thread.send(role.mention, delete_after=1)
+        await thread.send(role.mention, delete_after=1)
         
 
         embed = discord.Embed(
@@ -121,8 +120,7 @@ class PlayerModal(discord.ui.Modal, title="Tickets"):
 
         # Add staff members
         role = interaction.guild.get_role(1362668964177772565)
-        if role:
-            await thread.send(role.mention, delete_after=1)
+        await thread.send(role.mention, delete_after=1)
         
 
         embed = discord.Embed(
@@ -165,8 +163,7 @@ class AppealModal(discord.ui.Modal, title="Appeal"):
 
         # Add staff members
         role = interaction.guild.get_role(1362668964177772565)
-        if role:
-            await thread.send(role.mention, delete_after=1)
+        await thread.send(role.mention, delete_after=1)
         
         embed = discord.Embed(
             description=f"**An appeal has been opened by {user.mention}.**\n\n**They entered the below information:**\n**Their Minecraft IGN:**\n`{self.mcign.value}`\n**The reason for their ban:**\n{self.reasonban.value}\n**If its permanent or temporary and for how long if its temporary:**\n{self.temppermaban.value}\n**Why they believe they shouldn't have been banned:**\n{self.excuse.value}\n\nPlease also @mention any users that are witnesses or related to the ban.",
@@ -201,10 +198,7 @@ class AlertModal(discord.ui.Modal, title="Send Quick Alert"):
             webhook = discord.Webhook.from_url(alerts_webhook, session=session)
             await webhook.send(embed=embed)
             role = interaction.guild.get_role(1362668964177772565)
-            if role:
-                await webhook.send(role.mention, allowed_mentions=discord.AllowedMentions(roles=True))
-            else:
-                await webhook.send("Error: Can't ping the role")
+            await webhook.send(role.mention, allowed_mentions=discord.AllowedMentions(roles=True))
         await interaction.response.send_message("✅ Alert sent!", ephemeral=True)
 
 class SuggestModal(discord.ui.Modal, title="Suggestions"):
@@ -336,8 +330,7 @@ class TicketCog(commands.Cog):
     async def tickets(self, ctx):
         channel = self.bot.get_channel(1338143330286043259)
         await ctx.message.delete()
-        if channel:
-            await channel.purge(limit=20)
+        await channel.purge(limit=20)
 
         embed = discord.Embed(
             title="Tickets",

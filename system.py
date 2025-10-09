@@ -149,10 +149,7 @@ class SystemCog(commands.Cog):
             print(f"HYPE HYPE HYPE HYPE\n{after} just boosted the server!")
             msg = f"# 🎉 DISCORD BOOST! 🎉\n### {after.mention} JUST BOOSTED THE SERVER!!!"
             channel = self.bot.get_channel(1279143050496442471)
-            if channel:
-                await channel.send(msg)
-            else:
-                print("boost command channel not found")
+            await channel.send(msg)
     
     @commands.Cog.listener()
     async def on_member_join(self, member):

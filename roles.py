@@ -22,13 +22,12 @@ class RolesCog(commands.Cog):
         message = await self.bot.get_channel(plyd.channel_id).fetch_message(plyd.message_id)
         if message.channel.id == 1412708336536653886 and not message.id == 0 and plyd.emoji.name in roles.keys():
             role = user.guild.get_role(roles[plyd.emoji.name])
-            if role:
-                if role in user.roles:
-                    await user.send(f"You already have the role {role.name}!")
-                    return
-                print(f"Added role {role.name} to {user.display_name}")
-                await user.add_roles(role)
-                await user.send(f"Added role {role.name}!")
+            if role in user.roles:
+                await user.send(f"You already have the role {role.name}!")
+                return
+            print(f"Added role {role.name} to {user.display_name}")
+            await user.add_roles(role)
+            await user.send(f"Added role {role.name}!")
                     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, plyd):
@@ -38,13 +37,12 @@ class RolesCog(commands.Cog):
         message = await self.bot.get_channel(plyd.channel_id).fetch_message(plyd.message_id)
         if message.channel.id == 1412708336536653886 and not message.id == 0 and plyd.emoji.name in roles.keys():
             role = user.guild.get_role(roles[plyd.emoji.name])
-            if role:
-                if role not in user.roles:
-                    await user.send(f"You don't have the role {role.name}!")
-                    return
-                print(f"Removed role {role.name} from {user.display_name}")
-                await user.remove_roles(role)
-                await user.send(f"Removed role {role.name}!")
+            if role not in user.roles:
+                await user.send(f"You don't have the role {role.name}!")
+                return
+            print(f"Removed role {role.name} from {user.display_name}")
+            await user.remove_roles(role)
+            await user.send(f"Removed role {role.name}!")
     
     @commands.command()
     async def updaterolesmsg(self, ctx):
@@ -68,11 +66,10 @@ class RolesCog(commands.Cog):
                     continue
                 member = ctx.guild.get_member(user.id)
                 role = ctx.guild.get_role(roles[reaction.emoji])
-                if role and member:
-                    if role not in member.roles:
-                        print(f"Added role {role.name} to {member.display_name}")
-                        await member.add_roles(role)
-                        await member.send(f"The bot was down when you reacted to the message. Added role {role.name}!")
+                if role not in member.roles:
+                    print(f"Added role {role.name} to {member.display_name}")
+                    await member.add_roles(role)
+                    await member.send(f"The bot was down when you reacted to the message. Added role {role.name}!")
             
 async def setup(bot):
     await bot.add_cog(RolesCog(bot))

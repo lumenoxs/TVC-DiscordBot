@@ -76,6 +76,16 @@ class NewsCog(commands.Cog):
             save_news_data(data)
             
             print("News round has been reset.")
+        elif datetime.datetime.now().weekday() == 3:
+            news_announcement, news_billboard = await get_latest_news(self.bot)
+            if news_announcement == "No new announcements":
+                alerts_channel = self.bot.get_channel(1312528601253412945)
+
+                await alerts_channel.send("No announcements have been set for next week! Use `!news_set` to set one.")
+            if news_billboard == "No posts were added! Remember to use `!news_add`!":
+                alerts_channel = self.bot.get_channel(1312528601253412945)
+
+                await alerts_channel.send("No posts have been added for next week! Use `!news_add` to add one.")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

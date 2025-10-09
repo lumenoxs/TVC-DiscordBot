@@ -37,6 +37,49 @@ def save_join_data(data):
     with open(join_data_file, "w") as f:
         json.dump(data, f, indent=4)
 
+async def welcome(user_id, bot):
+    member = bot.get_guild(1279143050496442469).get_member(user_id)
+    join_data = load_join_data()
+    role = member.guild.get_role(1376242160042512575)
+    await member.add_roles(role)
+    print(f"Assigned new role to {member.display_name}")
+    
+    join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
+    save_join_data(join_data)
+
+    welcome = discord.Embed(
+        title="Welcome to **True Vanilla Network**!",
+        description=(
+            "**IP:** `mc.truevanilla.net`\n"
+            "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
+            "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for rules\n\n"
+        ),
+        color=discord.Color.dark_blue()
+    )
+    
+    welcome.set_footer(text="THIS IS NOT A CRACKED SERVER\nHACKING IS NOT ALLOWED\nWE DO NOT SUPPORT BEDROCK")
+    message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
+    
+    try:
+        await member.send(embed=welcome)
+    except Exception as err:
+        if member.bot:
+            message = f"The bot {member.mention} (*{member.display_name}*) has joined **True Vanilla**!"
+        print(err)
+        message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
+    
+    channel = bot.get_channel(1279361679192231996)
+    msg = await channel.send(message)
+    
+    if msg.guild.member_count%50 == 0:
+        await msg.pin()
+        await channel.send(f"# We have reached {msg.guild.member_count} members!")
+
+async def farewell(user_id, bot):
+    channel = bot.get_channel(1279361679192231996)
+    name = await bot.fetch_user(user_id)
+    await channel.send(f"User <@{user_id}> (*{name}*) left.")
+
 class SystemCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -55,53 +98,13 @@ class SystemCog(commands.Cog):
         for user_id in users_data["0"]:
             if user_id not in members:
                 # someone left
-                channel = self.bot.get_channel(1279361679192231996)
-                name = await self.bot.fetch_user(user_id)
-                print(f"User {name} (*{user_id}*) left.")
-                await channel.send(f"User <@{user_id}> (*{name}*) left.")
+                await farewell(user_id, self.bot)
                 users_data["0"].remove(user_id)
         
         for user_id in members:
             if user_id not in users_data["0"]:
                 # someone joined
-                member = self.bot.get_guild(1279143050496442469).get_member(user_id)
-                join_data = load_join_data()
-                role_id = 1376242160042512575
-                role = member.guild.get_role(role_id)
-                if role:
-                    await member.add_roles(role)
-                    print(f"Assigned \'new\' role to {member.display_name}")
-                    
-                    join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
-                    save_join_data(join_data)
-
-                welcome = discord.Embed(
-                    title="Welcome to **True Vanilla Network**!",
-                    description=(
-                        "**Java:**\n"
-                        "**IP:** `mc.truevanilla.net`\n"
-                        "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
-                        "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for rules\n\n"
-                    ),
-                    color=discord.Color.dark_blue()
-                )
-                welcome.set_footer(text="THIS IS NOT A CRACKED SERVER\nHACKING IS NOT ALLOWED\nWE DO NOT SUPPORT BEDROCK")
-                message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
-                
-                try:
-                    await member.send(embed=welcome)
-                except Exception as err:
-                    print(err)
-                    message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
-                
-                channel = self.bot.get_channel(1279361679192231996)
-                if channel:
-                    msg_module = await channel.send(message)
-                    
-                    overfill = msg_module.guild.member_count%50
-                    if overfill == 0:
-                        await msg_module.pin()
-                        await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
+                await welcome(user_id, self.bot)
                 users_data["0"].append(user_id)
         
         save_users_data(users_data)
@@ -153,45 +156,7 @@ class SystemCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        print(member.id)
-        join_data = load_join_data()
-        role_id = 1376242160042512575
-        role = member.guild.get_role(role_id)
-        if role:
-            await member.add_roles(role)
-            print(f"Assigned \'new\' role to {member.display_name}")
-            
-            join_data[str(member.id)] = (datetime.datetime.utcnow() + datetime.timedelta(days=14)).isoformat()
-            save_join_data(join_data)
-
-        welcome = discord.Embed(
-            title="Welcome to **True Vanilla Network**!",
-            description=(
-                "**Java:**\n"
-                "**IP:** `mc.truevanilla.net`\n"
-                "**Versions:** `1.19.x-1.21.x` (the latest version)\n"
-                "Go to https://discord.com/channels/1279143050496442469/1279147286286307419 for rules\n\n"
-            ),
-            color=discord.Color.dark_blue()
-        )
-        welcome.set_footer(text="THIS IS NOT A CRACKED SERVER\nHACKING IS NOT ALLOWED\nWE DO NOT SUPPORT BEDROCK")
-        message = f"Welcome {member.mention} (*{member.display_name}*) to **True Vanilla**!"
-        
-        try:
-            await member.send(embed=welcome)
-        except Exception as err:
-            print(err)
-            message += "\nPlease check https://discord.com/channels/1279143050496442469/1375185161980739797 on how to join and what versions we support."
-        
-        channel = self.bot.get_channel(1279361679192231996)
-        if channel:
-            msg_module = await channel.send(message)
-            
-            overfill = msg_module.guild.member_count%50
-            if overfill == 0:
-                await msg_module.pin()
-                await channel.send(f"# We have reached {msg_module.guild.member_count} members!")
-        
+        await welcome(member.id, self.bot)
         stuff = load_users_data()
         stuff["0"].append(member.id)
         save_users_data(stuff)
@@ -212,11 +177,7 @@ class SystemCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        print(member.id)
-        channel = self.bot.get_channel(1279361679192231996)
-        if channel:
-            await channel.send(f"User {member.mention} (*{member.display_name}*) left.")
-        
+        await farewell(member.id, self.bot)
         stuff = load_users_data()
         stuff["0"].remove(member.id)
         save_users_data(stuff)
@@ -224,7 +185,7 @@ class SystemCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         new_role = self.bot.get_guild(1279143050496442469).get_role(1376242160042512575)
-        ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip"]
+        ip_kyws = ["whats the ip", "wats the ip", "wat the ip", "how do i join", "how to join", "wheres the ip", "how can i join", "how do i connect", "how to connect", "how can i connect", "what is the ip", "what's the ip", "where is the ip", "where's the ip", "how do i get on", "how to get on", "how can i get on"]
         if message.channel.id == 1328017848143974524 and message.interaction_metadata and message.author.id == 302050872383242240:
             await message.reply(f"Thanks for bumping our server, {message.interaction_metadata.user.display_name}! You rock! :D")
             await message.add_reaction("🎉")

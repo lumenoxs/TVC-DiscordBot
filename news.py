@@ -77,7 +77,7 @@ class NewsCog(commands.Cog):
             
             print("News round has been reset.")
 
-    @commands.Cog.command()
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def news_set(self, ctx, *, announcement):
         data = load_news_data()
@@ -85,12 +85,12 @@ class NewsCog(commands.Cog):
         save_news_data(data)
         await ctx.send(f"Next news announcement set to: {announcement}")
 
-    @commands.Cog.command()
+    @commands.command()
     async def add_news(self, ctx, *, message):
         await ctx.send("Its !news_add you idiot but Ill be kind and do it for you this time.")
         await self.news_add(ctx, message=message)
 
-    @commands.Cog.command()
+    @commands.command()
     async def news_add(self, ctx, *, message):
         data = load_news_data()
         message.replace("\\n", "\n").replace("@", "[@]").replace("<", "[<]").replace(">", "[>]")
@@ -106,7 +106,7 @@ class NewsCog(commands.Cog):
         else:
             await ctx.send("The billboard is full for next week. Come back after Friday!")
 
-    @commands.Cog.command()
+    @commands.command()
     async def news(self, ctx):
         await ctx.send(embed=await get_latest_news_embed(self.bot))
 

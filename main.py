@@ -77,140 +77,8 @@ bot.admin = admin
 bot.staff = staff
 
 join_data_file = "join_roles.json"
-news_file = "news_data.json"
 trivia_questions_file = "trivia_questions.json"
 trivia_questions = {}
-
-# --------------------------------------------------------------------------
-# News
-# --------------------------------------------------------------------------
-
-def load_news_data():
-    try:
-        with open(news_file, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {"announcement": "", "messages": [], "last_reset": str(datetime.date.today())}
-
-def save_news_data(data):
-    with open(news_file, "w") as f:
-        json.dump(data, f, indent=4)
-        
-# News Message        
-
-async def get_news():
-    data = load_news_data()
-        
-    if not data['announcement']:
-        news_announcement = "No new announcements"
-    else:
-        news_announcement = data['announcement']
-            
-    embed = discord.Embed(
-        title="📢  Weekly News\n",
-        description="‎",
-        color=discord.Color.blue()
-    )
-
-    embed.add_field(name="📰  Announcements", value="‎\n"+news_announcement, inline=False)
-        
-    if not data["messages"]:
-        embed.add_field(name="🔥  Posts", value="‎\nNo posts were added! Remember to use `!news_add`!\n‎", inline=False)
-    else:
-        news_billboard = ""
-        for i, entry in enumerate(data["messages"], 1):
-            user = await bot.fetch_user(entry["user_id"])
-            news_billboard += f"{i}. {user.name}: {entry['message']}\n"
-        embed.add_field(name="🔥  Posts", value="‎\n"+news_billboard+"‎\n", inline=False)
-        
-    embed.set_footer(text="Stay tuned for more updates!")
-    return embed
-        
-# --------------------------------------------------------------------------
-# News loops
-# --------------------------------------------------------------------------
-
-# Weekly news
-
-@tasks.loop(hours=24)
-async def send_news():
-    if datetime.datetime.now().weekday() == 5:
-        general_channel = bot.get_channel(1279143050496442471)
-        
-        await general_channel.send(embed=await get_news())
-
-# Weekly news reset
-
-@tasks.loop(hours=24)
-async def weekly_news_reset():
-    data = load_news_data()
-    today = str(datetime.date.today())
-    
-    if today != data["last_reset"] and datetime.datetime.now().weekday() == 5:
-        data["messages"] = []
-        data["announcement"] = ""
-        data["last_reset"] = today
-        save_news_data(data)
-        print("News round has been reset.")
-        
-# --------------------------------------------------------------------------
-# News
-# --------------------------------------------------------------------------
-
-# Set news announcement (admin)
-
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def news_set(ctx, *, announcement):
-    data = load_news_data()
-    data["announcement"] = announcement
-    save_news_data(data)
-    await ctx.send(f"News announcement set to: {announcement}")
-    
-# No permission to set news announcement
-
-@news_set.error
-async def news_set_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You don't have permission to set the news announcement :|")
-
-# Add news post (members)
-
-@bot.command()
-async def news_add(ctx, *, message):
-    data = load_news_data()
-
-    if any(m.get("user_id") == ctx.author.id for m in data["messages"]):
-        await ctx.send("You've already added a post this week!")
-        return
-
-    if len(data["messages"]) < 10:
-        data["messages"].append({"user_id": ctx.author.id, "message": message})
-        save_news_data(data)
-        await ctx.send(f"Your post has been added to this week's news: {message}")
-    else:
-        await ctx.send("The billboard is full for this week. Come back next Saturday!")
-
-# Get latest news
-
-@bot.command()
-async def news(ctx):
-    await ctx.send(embed=await get_news())
-
-async def schedule_news_loop():
-    now = datetime.datetime.now()
-    target = now.replace(hour=9, minute=0, second=0, microsecond=0)
-    
-    if now >= target:
-        target += datetime.timedelta(days=1)
-
-    wait_seconds = (target - now).total_seconds()
-    print(f"Waiting {wait_seconds} seconds until 09:00")
-
-    await asyncio.sleep(wait_seconds)
-    
-    send_news.start()
-    weekly_news_reset.start()
 
 # --------------------------------------------------------------------------
 # Get data from URL
@@ -436,7 +304,7 @@ async def echo(ctx, *, message):
         await ctx.send(message.replace("\\n", "\n").replace("@", "[@]").replace("<", "[<]").replace(">", "[>]"))
 
 async def load_cogs():
-    cogs = ["tickets", "factions", "moderation", "questions", "roles", "system", "commands"]
+    cogs = ["tickets", "factions", "moderation", "questions", "roles", "system", "commands", "news"]
     
     for cog in cogs:
         try:
@@ -482,8 +350,6 @@ async def on_ready():
     await load_cogs()
     await load_views()
     await load_tree()
-    
-    await schedule_news_loop()
 
 # Run the bot
 bot.run(TOKEN)

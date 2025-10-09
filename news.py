@@ -55,7 +55,7 @@ async def get_top_tip():
 class NewsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.schedule_news_loop().start()
+        asyncio.get_event_loop().create_task(self.schedule_news_loop()) # why is this so complex
 
     @tasks.loop(hours=24)
     async def send_news(self):

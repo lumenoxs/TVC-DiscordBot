@@ -78,7 +78,7 @@ async def welcome(user_id, bot):
 async def farewell(user_id, bot):
     channel = bot.get_channel(1279361679192231996)
     name = await bot.fetch_user(user_id)
-    await channel.send(f"User <@{user_id}> (*{name}*) left.")
+    await channel.send(f"User <@{user_id}> (*{name.display_name}*) left.")
 
 class SystemCog(commands.Cog):
     def __init__(self, bot):

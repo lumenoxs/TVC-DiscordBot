@@ -33,19 +33,11 @@ async def get_latest_news(bot):
 
     return news_announcement, news_billboard
 
-async def get_latest_news_embed(bot):
+async def get_latest_news_msg(bot):
     news_announcement, news_billboard = await get_latest_news(bot)
             
-    embed = discord.Embed(
-        title="📢  Weekly News\n",
-        description="‎",
-        color=discord.Color.blue()
-    )
-
-    embed.add_field(name="📰  Announcements", value="‎\n"+news_announcement, inline=False)
-    embed.add_field(name="🔥  Posts", value="‎\n"+news_billboard+"‎\n", inline=False)
-    embed.set_footer(text="Stay tuned for more updates!")
-    return embed
+    message = f"# 📢 Weekly News\n## 📰 Announcements\n{news_announcement}\n\n🔥 Posts\n{news_billboard}\n-# Stay tuned for more updates"
+    return message
 
 async def get_top_tip():
     with open("top_tips.txt", "r") as f:
@@ -64,16 +56,16 @@ class NewsCog(commands.Cog):
             
             await general_channel.send("Tip: "+await get_top_tip())
         elif datetime.datetime.now().weekday() == 4:
-            general_channel = self.bot.get_channel(1279143050496442471)
-            
-            await general_channel.send(embed=await get_latest_news_embed(self.bot))
-                
             data = load_news_data()
             data["announcement"] = data["next_announcement"]
             data["messages"] = data["next_messages"]
             data["next_announcement"] = ""
             data["next_messages"] = []
             save_news_data(data)
+
+            general_channel = self.bot.get_channel(1279143050496442471)
+            
+            await general_channel.send(await get_latest_news_msg(self.bot))
             
             print("News round has been reset.")
         elif datetime.datetime.now().weekday() == 3:
@@ -118,7 +110,7 @@ class NewsCog(commands.Cog):
 
     @commands.command()
     async def news(self, ctx):
-        await ctx.send(embed=await get_latest_news_embed(self.bot))
+        await ctx.send(await get_latest_news_msg(self.bot))
 
     async def schedule_news_loop(self):
         now = datetime.datetime.now()

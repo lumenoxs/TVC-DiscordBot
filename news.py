@@ -36,7 +36,7 @@ async def get_latest_news(bot):
 async def get_latest_news_msg(bot):
     news_announcement, news_billboard = await get_latest_news(bot)
             
-    message = f"# 📢 Weekly News\n## 📰 Announcements\n{news_announcement}\n\n## 🔥 Posts\n{news_billboard}\n-# Stay tuned for more updates"
+    message = f"# 📢 Weekly News\n## 📰 Announcements\n{news_announcement}\n\n## 🔥 Posts\n{news_billboard}\n\n-# Stay tuned for more updates!"
     return message
 
 async def get_top_tip():

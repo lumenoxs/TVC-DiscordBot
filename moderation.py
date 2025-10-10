@@ -122,15 +122,23 @@ class ModerationCog(commands.Cog):
     
     @commands.command()
     async def purge(self, ctx, number: int):
-        print(number)
         if self.bot.admin(ctx.author):
             await ctx.channel.purge(limit=number+1)
         
     @commands.command()
     async def nuke(self, ctx):
-        if self.bot.admin(ctx.author):
-            for i in range(1, 5):
-                await ctx.channel.purge(limit=100)
+        with open("nuke.txt", "r") as f:
+            if f.read().strip() != "true":
+                await ctx.send("Nuking is disabled.")
+                return
+        
+        if self.bot.admin(ctx.author) == False: return
+            
+        for i in range(1, 5):
+            await ctx.channel.purge(limit=100)
+
+        with open("nuke.txt", "w") as f:
+            f.write("false")
     
     
 async def setup(bot):

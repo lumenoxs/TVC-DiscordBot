@@ -100,7 +100,7 @@ class ModerationCog(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_message_edit(self, plyd):
-        if plyd.cached_message or plyd.message.author.id == 1225709819890110604 or plyd.message.content == "":
+        if plyd.message.author.bot or plyd.cached_message or plyd.message.author.id == 1225709819890110604 or plyd.message.content == "":
             return
         print(plyd.message.content)
         channel = self.bot.get_channel(1312528601253412945)

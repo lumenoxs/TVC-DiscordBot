@@ -1,5 +1,7 @@
+import aiohttp
 from discord.ext import commands
 import discord
+import urllib.request, json
 
 channels = {}
 channels["general"] = 1279143050496442471
@@ -49,7 +51,40 @@ class CommandsCog(commands.Cog):
             await ctx.send("I do not have permission to fetch messages.")
         except discord.HTTPException as e:
             await ctx.send(f"An error occurred: {e}")
+            
+    @commands.command()
+    async def players(self, ctx):
+        await ctx.message.delete()
 
+        url = "https://api.mcstatus.io/v2/status/java/mc.truevanilla.net"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    print("Code: "+str(response.status))
+                    await ctx.send(f"⚠️ Could not fetch server status\nHTTP Error {response.status}")
+                    return
+                data = await response.json()
+
+        if data["online"]:
+            players = []
+            for player in data["players"]["list"]:
+                players.append(player["name_raw"])
+            players_str = ", ".join(players) if players else "No players online"
+            embed = discord.Embed(
+                title="Server",
+                description=f"The server is **online**.\nThere are {data['players']['online']} players online out of {data['players']['max']}.\n"+players_str,
+                color=discord.Color.green()
+            )
+        else:
+            embed = discord.Embed(
+                title="Server",
+                description=f"The server is **offline**.",
+                color=discord.Color.red()
+            )
+
+        await ctx.send(embed=embed)
+    
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, discord.ext.commands.errors.CommandNotFound):

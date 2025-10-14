@@ -1,8 +1,9 @@
+import aiohttp
 from discord.ext import commands, tasks
 import json
 import datetime
 import discord
-import requests
+import os
 
 users_file = "users.json"
 join_data_file = "join_roles.json"
@@ -85,6 +86,51 @@ class SystemCog(commands.Cog):
         self.bot = bot
         self.check_new_role.start()
         self.bump_reminder.start()
+
+    @commands.command()
+    async def get_all_files(self, ctx):
+        if ctx.author.guild_permissions.administrator == False:
+            await ctx.send("You do not have permission to use this command.")
+            return
+        
+        SAVE_DIR = "files"
+
+        async def download_file(session, url, path):
+            async with session.get(url) as response:
+                if response.status == 200:
+                    with open(path, "wb") as f:
+                        f.write(await response.read())
+                else:
+                    print(f"Failed to download file: HTTP {response.status}")
+
+
+        guild = self.bot.get_guild(1279143050496442469)
+
+        os.makedirs(SAVE_DIR, exist_ok=True)
+        async with aiohttp.ClientSession() as session:
+            for channel in guild.text_channels:
+                folder = os.path.join(SAVE_DIR, channel.name.replace("/", "_"))
+                os.makedirs(folder, exist_ok=True)
+
+                print(f"Fetching messages in #{channel.name}...")
+                async for msg in channel.history(limit=None, oldest_first=True):
+                    for attachment in msg.attachments:
+                        if attachment.content_type and (
+                            attachment.content_type.startswith("image/")
+                            or attachment.content_type.startswith("video/")
+                        ):
+                            filename = f"{msg.id}_{attachment.filename}"
+                            path = os.path.join(folder, filename)
+
+                            if not os.path.exists(path):
+                                try:
+                                    await download_file(session, attachment.url, path)
+                                    print(f"Saved {filename} from #{channel.name}")
+                                except Exception as e:
+                                    print(f"Failed to download {attachment.url} for some reason :(\n{e}")
+                                    await ctx.send(f"Failed to download {attachment.url} for some reason :(")
+
+        await ctx.send("Finished downloading the files!")
 
     @commands.command()
     async def welcome_users(self, ctx):

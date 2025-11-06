@@ -4,6 +4,7 @@ import json
 import random
 import aiohttp
 import os
+import re
 from dotenv import load_dotenv
 
 tickets_file = "tickets.json"
@@ -11,26 +12,70 @@ tickets_file = "tickets.json"
 load_dotenv("webhooks.env")
 alerts_webhook = os.getenv("ALERTS")
 
-def load_tickets_data():
-    try:
-        with open(tickets_file, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+def get_tickets_data():
+    with open(tickets_file, "r") as f:
+        return json.load(f)
 
-def load_ticket(ticket_id):
-    try:
-        with open(tickets_file, "r") as f:
-            data = json.load(f)
-            return data.get(ticket_id, False)
-    except FileNotFoundError:
-        return False
-
-def save_tickets_data(ticket_id, user):
-    data = load_tickets_data()
-    data[str(ticket_id)] = user
+def save_tickets_data(data):
     with open(tickets_file, "w") as f:
         json.dump(data, f, indent=4)
+
+def save_ticket_data(ticket_id, user):
+    data = get_tickets_data()
+    data[str(ticket_id)] = user
+    save_tickets_data(data)
+
+def get_ticket_user(ticket_id):
+    data = get_tickets_data()
+    return data.get(str(ticket_id), False)
+
+def get_ticket_status(ticket_id):
+    data = get_tickets_data()
+    return str(ticket_id) in data.get("closed")
+
+def save_ticket_closed(ticket_id):
+    data = get_tickets_data()
+    data["closed"].append(str(ticket_id))
+    save_tickets_data(data)
+
+def save_ticket_opened(ticket_id):
+    data = get_tickets_data()
+    data["closed"].pop(str(ticket_id))
+    save_tickets_data(data)
+
+def get_embed_mentions(message: discord.Message):
+    # made by chatgpt as idk how to do this
+    mentioned_ids = set()
+    for embed in message.embeds:
+        text_parts = [embed.title, embed.description]
+        for field in embed.fields:
+            text_parts.extend([field.name, field.value])
+        for text in filter(None, text_parts):
+            for match in re.findall(r"<@!?(\d+)>", text):
+                mentioned_ids.add(int(match))
+    return [message.guild.get_member(uid) for uid in mentioned_ids if message.guild]
+
+async def process_thread(thread):
+    if thread.archived:
+        save_ticket_closed(str(thread.id))
+
+    async for message in thread.history(limit=1, oldest_first=True):
+        fmessage = message
+        mentions = fmessage.mentions or []
+        embed_mentions = get_embed_mentions(fmessage) or []
+        all_mentions = mentions + embed_mentions
+
+        if all_mentions:
+            first_mentioned_user = all_mentions[0]
+            try:
+                save_ticket_data(thread.id, first_mentioned_user.id)
+            except Exception as e:
+                print(f"Error saving ticket data for thread {thread.id}: {e}")
+                return f"Could not find user for ticket thread {thread.mention}"
+        else:
+            return f"Could not find user for ticket thread {thread.mention}"
+        break
+    return False
 
 class TicketModel(discord.ui.Modal, title="Tickets"):
     issue = discord.ui.TextInput(
@@ -50,7 +95,7 @@ class TicketModel(discord.ui.Modal, title="Tickets"):
         ticket_type = self.ticket_type
         await interaction.response.defer(ephemeral=True)
         user = interaction.user
-        data = load_tickets_data()
+        data = get_tickets_data()
         
         if user.id in data.values():
             await interaction.followup.send("You already have a ticket open!", ephemeral=True)
@@ -77,7 +122,7 @@ class TicketModel(discord.ui.Modal, title="Tickets"):
         )
 
         await thread.send(embed=embed, view=CloseTicket(self.bot))
-        save_tickets_data(thread.id, user.id)
+        save_ticket_data(thread.id, user.id)
         await interaction.followup.send(f"✅ Your ticket has been created: {thread.mention}", ephemeral=True)
         
 
@@ -132,7 +177,7 @@ class AppealModal(discord.ui.Modal, title="Appeal"):
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         user = interaction.user
-        data = load_tickets_data()
+        data = get_tickets_data()
         
         if user.id in data.values():
             await interaction.followup.send("You already have an ticket/appeal open!", ephemeral=True)
@@ -156,7 +201,7 @@ class AppealModal(discord.ui.Modal, title="Appeal"):
         )
 
         await thread.send(embed=embed, view=CloseTicket(self.bot))
-        save_tickets_data(thread.id, user.id)
+        save_ticket_data(thread.id, user.id)
         await interaction.followup.send(f"✅ Your appeal has been created: {thread.mention}", ephemeral=True)
 
 class AlertModal(discord.ui.Modal, title="Send Quick Alert"):
@@ -272,7 +317,21 @@ class CloseTicket(discord.ui.View):
             )
             await interaction.channel.send(embed=embed)
             await interaction.channel.edit(archived=True)
-            save_tickets_data(interaction.channel.id, False)
+            save_ticket_closed(str(interaction.channel.id))
+            await interaction.response.defer()
+        else:
+            await interaction.response.send_message("This can only be used in a thread.", ephemeral=True)
+
+class OpenTicket(discord.ui.View):
+    def __init__(self, bot):
+        super().__init__(timeout=None)
+        self.bot = bot
+
+    @discord.ui.button(label="Reopen Ticket", style=discord.ButtonStyle.green, custom_id="open_ticket", emoji="🔓")
+    async def open_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if isinstance(interaction.channel, discord.Thread):
+            await interaction.channel.edit(archived=False)
+            save_ticket_opened(str(interaction.channel.id))
             await interaction.response.defer()
         else:
             await interaction.response.send_message("This can only be used in a thread.", ephemeral=True)
@@ -334,6 +393,61 @@ class TicketCog(commands.Cog):
             await ctx.send("This ticket is now locked.")
         else:
             await ctx.send("This can only be used in a thread.")
+
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def unlock(self, ctx):
+        if isinstance(ctx.channel, discord.Thread):
+            await ctx.channel.edit(locked=False)
+            await ctx.send("This ticket is now unlocked.")
+        else:
+            await ctx.send("This can only be used in a thread.")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def warn_no_respond(self, ctx):
+        await ctx.message.delete()
+        if isinstance(ctx.channel, discord.Thread):
+            user = ctx.guild.get_member(get_ticket_user(str(ctx.channel.id)))
+            embed = discord.Embed(
+                description=f"Hello {user.mention},\n\nIt seems that there has been no messages in this ticket for a while.\nIf you still need assistance, please reply within the next 24 hours, or the ticket will be closed. If you do not, please close the ticket via the button below.\n\nThank you!",
+                color=discord.Color.orange()
+            )
+            await ctx.channel.send(embed=embed, view=CloseTicket(self.bot))
+        else:
+            await ctx.send("This can only be used in a thread.")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def resync_tickets(self, ctx):
+        tickets_channel = self.bot.get_channel(1338143330286043259)
+        
+        for thread in tickets_channel.threads:
+            await ctx.send(f"Processing thread: {thread.name}")
+            if await process_thread(thread):
+                await ctx.send(f"Could not find user for ticket thread {thread.mention}")
+
+        async for thread in tickets_channel.archived_threads(private=True, limit=None):
+            print("wsp")
+            await ctx.send(f"Processing archived thread: {thread.name}")
+            if await process_thread(thread):
+                await ctx.send(f"Could not find user for ticket thread {thread.mention}")
+        
+        await ctx.send("Ticket data resynced.")
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        if isinstance(message.channel, discord.Thread) and get_ticket_status(str(message.channel.id)):
+                embed = discord.Embed(
+                    description=f"Hello {message.author.mention},\n\nThis ticket is currently closed. If you think you need more assistance, please reopen the ticket using the button below.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed, view=OpenTicket(self.bot))
+                await message.channel.edit(archived=False)
 
 async def setup(bot):
     await bot.add_cog(TicketCog(bot))

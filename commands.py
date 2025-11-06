@@ -4,13 +4,7 @@ import discord
 import urllib.request, json
 
 channels = {}
-channels["general"] = 1279143050496442471
-channels["welcome"] = 0
-channels["help"] = 0
-channels["promo"] = 0
-channels["memes"] = 0
-channels["spam"] = 0
-channels["dank"] = 0
+channels["general"] = 1279143050496442471 
 channels["alerts"] = 1312528601253412945
 
 class CommandsCog(commands.Cog):
@@ -92,7 +86,7 @@ class CommandsCog(commands.Cog):
             print(f"Wrong command ran by {ctx.author.display_name}, {ctx.author.name}")
         else:
             await ctx.send("An error occurred while processing the command.")
-            await self.bot.get_channel(channels["alerts"]).send(f"Error occurred: {str(error)}")
+            await self.bot.get_channel(channels["alerts"]).send(f"An error occurred while proccessing the message https://discord.com/1279143050496442469/{ctx.message.channel}/{ctx.message.id}:\n{error}")
             raise error
         
     def __init__(self, bot):

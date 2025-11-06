@@ -95,10 +95,14 @@ class RolesCog(commands.Cog):
                     continue
                 member = ctx.guild.get_member(user.id)
                 role = ctx.guild.get_role(roles[reaction.emoji])
+                if member is None:
+                    continue
                 if role not in member.roles:
                     print(f"Added role {role.name} to {member.display_name}")
                     await member.add_roles(role)
                     await member.send(f"The bot was down when you reacted to the message. Added role {role.name}!")
+        
+        await ctx.send("Added all roles!")
 
     @commands.command()
     async def roles_add_reactions(self, ctx):
@@ -114,5 +118,7 @@ class RolesCog(commands.Cog):
                 emoji = self.bot.get_emoji(emoji)
             await msg.add_reaction(emoji)
             
+        await ctx.send("Added all reactions!")
+        
 async def setup(bot):
     await bot.add_cog(RolesCog(bot))
